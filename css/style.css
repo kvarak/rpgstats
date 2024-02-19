@@ -1,0 +1,157 @@
+
+@font-face {
+  font-family:SolberaImitationRemake;
+  src:url('/fonts/Solbera Imitation Tweak.woff2');
+  font-weight:normal;
+  font-style:normal
+}
+
+@font-face {
+  font-family:ScalySansRemake;
+  src:url('/fonts/Scaly Sans.woff2');
+  font-weight:normal;
+  font-style:normal
+}
+
+@font-face {
+  font-family:ScalySansSmallCapsRemake;
+  src:url('/fonts/Scaly Sans Caps.woff2');
+  font-weight:normal;
+  font-style:normal
+}
+
+body {
+  background-image: url("/images/page-background.jpg");
+}
+
+h1, h2, h3, h4, h5 {
+  margin-bottom: 0;
+  font-family: MrJeeves;
+  font-weight: 900;
+  color: #58180D;
+  font-variant: small-caps;
+}
+
+h1 {
+  font-size: 2.5em;
+}
+
+h2 {
+  font-size: 2em;
+  text-align: center;
+  border-top: solid;
+  border-bottom: solid;
+  border-width: 1px;
+}
+
+h3 {
+  font-size: 1.6em;
+}
+h4 {
+  font-size: 1.4em;
+}
+h5 {
+  font-size: 1.2em;
+}
+
+p {
+  margin-bottom: 1em;
+}
+
+table {
+  margin-left: 10px;
+  margin-bottom: 5px;
+  font-size: 10px;
+  padding: 20px;
+}
+
+.td-nobreakcenter {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.td-nobreak {
+  white-space: nowrap;
+}
+
+.td-center {
+  text-align: center;
+}
+
+/* ----------------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+}
+
+.container {
+  display: flex;
+  font-family: 'ScalySansSmallCapsRemake', sans-serif; /* Fallback font if needed */
+}
+
+.list-container {
+  flex-direction: column;
+  margin-right: 20px; /* Adjust spacing as necessary */
+}
+
+.list-container ul {
+  list-style-type: none; /* Remove the dots in front of list items */
+  padding-left: 0; /* Remove the space in front of the list */
+}
+
+.checkbox-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Add this line to create 2 columns */
+  align-items: center; /* Add this line to center the items horizontally */
+  justify-content: center; /* Add this line to center the items vertically */
+}
+
+.chart-container {
+  flex-grow: 1; /* Take up remaining space */
+}
+
+.chart {
+  display: none; /* Hide charts initially */
+}
+
+li:hover {
+  cursor: pointer;
+  color: blue; /* Style for hover effect */
+}
+
+/* ----------------------------------------------------------------------------- */
+
+/* Tables */
+table tr:nth-child(odd) td {background-color: #b5e2f1;}
+
+/* styled Tables */
+.sTable {
+  background-color: #b5e2f1;
+  color: white;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border-bottom: solid;
+}
+
+.sTable h4 { padding: 8px 0px 6px 10px ; }
+
+.sTable th {
+  background-color: #E5E8E8;
+  color: black;
+}
+
+.sTable td {
+  font-size: 0.95em;
+}
+
+.sTable tr:nth-child(odd) td {
+  background-color: #E5E8E8;
+  color: black;
+}
+
+.sTable tr:nth-child(even) td {
+  background-color: white;
+  color: black;
+}

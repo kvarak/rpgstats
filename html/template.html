@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{.Title}}</title>
+  <!-- Compiled and minified Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Compiled Bootstrap JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+  <!-- Fonts -->
+  <link href="https://use.fontawesome.com/releases/v5.15.1/css/all.css" rel="stylesheet" />
+  <link href='https://fonts.googleapis.com/css?family=Buenard' rel='stylesheet'>
+
+  <!-- Plots -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/moment"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+
+  <!-- My styles -->
+  <link rel="stylesheet" href="/css/style.css">
+
+  <!-- My scripts -->
+  <script src="/script/script.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+  <div class="container">
+    <div class="list-container">
+      <h2>Plots</h2>
+      <ul id="plotList">
+        <h3>Deaths</h3>
+        <li data-target="charactercount">Deaths per Path (and Player)</li>
+        <li data-target="deathsByPath">Deaths per Player (and Path)</li>
+        <h3>Classes</h3>
+        <li data-target="classesByPlayer">Classes per Player (excl multi-class)</li>
+        <li data-target="classesByPlayerMulti">Classes per Player (incl multi-class)</li>
+        <h3>Other</h3>
+        <li data-target="racesByPlayer">Races per Player</li>
+        <li data-target="levelsLived">Levels Lived</li>
+      </ul>
+      <!-- <h2>Players</h2>
+      <div class="checkbox-container">
+        < !-- Checkboxes will be generated here by JavaScript -- >
+      </div> -->
+    </div>
+    <div class="chart-container">
+      <canvas id="charactercount" width="700" height="600" class="chart"></canvas>
+      <canvas id="deathsByPath" width="700" height="600" class="chart" style="display: none;"></canvas>
+      <canvas id="classesByPlayer" width="700" height="600" class="chart" style="display: none;"></canvas>
+      <canvas id="classesByPlayerMulti" width="700" height="600" class="chart" style="display: none;"></canvas>
+      <canvas id="racesByPlayer" width="700" height="600" class="chart" style="display: none;"></canvas>
+      <canvas id="levelsLived" width="700" height="600" class="chart" style="display: none;"></canvas>
+      <!-- Add more canvas elements as needed -->
+    </div>
+  </div>
+
+  <script>
+    createChart('/data/charactercount', 'charactercount', 'Deaths per Path (and Player)');
+    createChart('/data/deathsByPath', 'deathsByPath', 'Deaths per Player (and Path)');
+    createChart('/data/classesByPlayer', 'classesByPlayer', 'Classes per Player (excl multi-class)');
+    createChart('/data/classesByPlayerMulti', 'classesByPlayerMulti', 'Classes per Player (incl multi-class)');
+    createChart('/data/racesByPlayer', 'racesByPlayer', 'Races per Player');
+    createChart('/data/levelsLived', 'levelsLived', 'Levels Lived');
+  </script>
+
+  <!-- <p>{{.Content}}</p> -->
+</body>
+</html>
