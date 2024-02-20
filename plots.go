@@ -58,6 +58,30 @@ func handleTimeSeries(w http.ResponseWriter, r *http.Request) {
 // HANDLE
 // --------------------------------------------------------
 
+func handleAllTheData(w http.ResponseWriter, r *http.Request) {
+	collection := getSheetData()
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(collection); err != nil {
+		// Handle error
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// --------------------------------------------------------
+
+func handleLevelsLivedPath(w http.ResponseWriter, r *http.Request) {
+	collection := getSheetData()
+	keySelector := func(char Character) string { return char.Path }
+	valueSelector := func(char Character) string { return char.LevelsLived }
+	categoryCounts := processCharacterData(collection, keySelector, valueSelector)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(categoryCounts)
+}
+
+// --------------------------------------------------------
+
 func handleLevelsLived(w http.ResponseWriter, r *http.Request) {
 	collection := getSheetData()
 	keySelector := func(char Character) string { return char.Category }

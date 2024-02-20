@@ -155,3 +155,21 @@ table tr:nth-child(odd) td {background-color: #b5e2f1;}
   background-color: white;
   color: black;
 }
+
+/* ----------------------------------------------------------------------------- */
+
+/* Timeline */
+
+.color1 { background-color: rgba(255, 99, 132, 0.3); }
+.color2 { background-color: rgba(54, 162, 235, 0.3); }
+.color3 { background-color: rgba(255, 235, 59, 0.3); }
+.color4 { background-color: rgba(0, 0, 0, 0.3); }
+.color5 { background-color: rgba(32, 201, 151, 0.3); }
+.color6 { background-color: rgba(153, 102, 255, 0.3); }
+.color7 { background-color: rgba(255, 159, 64, 0.3); }
+.color8 { background-color: rgba(103, 58, 183, 0.3); }
+.color9 { background-color: rgba(0, 150, 136, 0.3); }
+.color10 { background-color: rgba(233, 30, 99, 0.3); }
+.color11 { background-color: rgba(244, 67, 54, 0.3); }
+.color12 { background-color: rgba(255, 206, 86, 0.3); }
+.color13 { background-color: rgba(75, 192, 192, 0.3); }

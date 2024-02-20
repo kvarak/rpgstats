@@ -36,6 +36,7 @@ func main() {
 	fsCss := http.FileServer(http.Dir("css"))
 	http.Handle("/css/", http.StripPrefix("/css/", fsCss))
 
+	http.HandleFunc("/data/levelsLivedPath", handleLevelsLivedPath)
 	http.HandleFunc("/data/levelsLived", handleLevelsLived)
 	http.HandleFunc("/data/racesByPlayer", handleRacesByPlayer)
 	http.HandleFunc("/data/classesByPlayer", handleClassesByPlayer)
@@ -43,5 +44,6 @@ func main() {
 	http.HandleFunc("/data/deathsByPath", handleDeathsByPath)
 	http.HandleFunc("/data/timeseries", handleTimeSeries)
 	http.HandleFunc("/data/charactercount", handleCharacterCount)
+	http.HandleFunc("/data/allTheData", handleAllTheData)
 	http.ListenAndServe(":8080", nil)
 }

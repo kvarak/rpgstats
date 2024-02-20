@@ -69,6 +69,7 @@ type Character struct {
 	Killercr    string `json:"killercr"`
 	Killer      string `json:"killer"`
 	Path        string `json:"path"`
+	PathNumber  string `json:"pathnumber"`
 	Category    string `json:"category"`
 	Died        string `json:"died"`
 	Extralife   string `json:"extralife"`
@@ -105,13 +106,15 @@ func getSheetData() CharacterCollection {
 		}
 		startLevel, _ := strconv.Atoi(fmt.Sprint(row[26]))
 		maxLevel, _ := strconv.Atoi(fmt.Sprint(row[28]))
-		levelsLivedInt := maxLevel - startLevel
+		levelsLivedInt := 1 + maxLevel - startLevel
 		var levelsLived string
 		if levelsLivedInt < 10 {
 			levelsLived = "0" + strconv.Itoa(levelsLivedInt)
 		} else {
 			levelsLived = strconv.Itoa(levelsLivedInt)
 		}
+		// log.Printf("Full response: %#v", resp.Values)
+
 		character := Character{
 			Text:        fmt.Sprint(row[0]),
 			Shortname:   fmt.Sprint(row[1]),
@@ -133,6 +136,7 @@ func getSheetData() CharacterCollection {
 			Killercr:    fmt.Sprint(row[17]),
 			Killer:      fmt.Sprint(row[18]),
 			Path:        getScenarioName(fmt.Sprint(row[19])),
+			PathNumber:  fmt.Sprint(row[19]),
 			Category:    fmt.Sprint(row[20]),
 			Died:        fmt.Sprint(row[21]),
 			Extralife:   fmt.Sprint(row[22]),

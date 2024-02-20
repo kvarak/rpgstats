@@ -3,6 +3,12 @@
 <html>
 <head>
   <title>{{.Title}}</title>
+  <!-- Include Vis-Timeline -->
+  <script type="text/javascript" src="https://unpkg.com/moment@latest"></script>
+  <script type="text/javascript" src="https://unpkg.com/vis-data@latest/peer/umd/vis-data.min.js"></script>
+  <script type="text/javascript" src="https://unpkg.com/vis-timeline@latest/peer/umd/vis-timeline-graph2d.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/vis-timeline/styles/vis-timeline-graph2d.min.css" />
+
   <!-- Compiled and minified Bootstrap CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 
@@ -26,7 +32,6 @@
 
   <!-- My scripts -->
   <script src="/script/script.js"></script>
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
@@ -43,8 +48,13 @@
         <li data-target="classesByPlayerMulti">Classes per Player (incl multi-class)</li>
         <h3>Other</h3>
         <li data-target="racesByPlayer">Races per Player</li>
-        <li data-target="levelsLived">Levels Lived</li>
+        <li data-target="levelsLived">Levels Lived (Player)</li>
+        <li data-target="levelsLivedPath">Levels Lived (Path)</li>
+        <h3>Timeline</h3>
+        <li data-target="timelineirl">IRL timeline</li>
+        <li data-target="timelineig">In-game timeline</li>
       </ul>
+      <div id="infoBox">Click on an item to see more information here.</div>
       <!-- <h2>Players</h2>
       <div class="checkbox-container">
         < !-- Checkboxes will be generated here by JavaScript -- >
@@ -57,6 +67,9 @@
       <canvas id="classesByPlayerMulti" width="700" height="600" class="chart" style="display: none;"></canvas>
       <canvas id="racesByPlayer" width="700" height="600" class="chart" style="display: none;"></canvas>
       <canvas id="levelsLived" width="700" height="600" class="chart" style="display: none;"></canvas>
+      <canvas id="levelsLivedPath" width="700" height="600" class="chart" style="display: none;"></canvas>
+      <div id="timelineirl" class="chart" style="display: none;"></div>
+      <div id="timelineig" class="chart" style="display: none;"></div>
       <!-- Add more canvas elements as needed -->
     </div>
   </div>
@@ -67,7 +80,8 @@
     createChart('/data/classesByPlayer', 'classesByPlayer', 'Classes per Player (excl multi-class)');
     createChart('/data/classesByPlayerMulti', 'classesByPlayerMulti', 'Classes per Player (incl multi-class)');
     createChart('/data/racesByPlayer', 'racesByPlayer', 'Races per Player');
-    createChart('/data/levelsLived', 'levelsLived', 'Levels Lived');
+    createChart('/data/levelsLived', 'levelsLived', 'Levels Lived (Player)');
+    createChart('/data/levelsLivedPath', 'levelsLivedPath', 'Levels Lived (Path)');
   </script>
 
   <!-- <p>{{.Content}}</p> -->
