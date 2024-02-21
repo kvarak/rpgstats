@@ -27,6 +27,8 @@ func main() {
 	// collection := getSheetData()
 	// generateStatistics(collection)
 
+	fsCampaigns := http.FileServer(http.Dir("campaigns"))
+	http.Handle("/campaigns/", http.StripPrefix("/campaigns/", fsCampaigns))
 	fsFonts := http.FileServer(http.Dir("fonts"))
 	http.Handle("/fonts/", http.StripPrefix("/fonts/", fsFonts))
 	fsScript := http.FileServer(http.Dir("script"))

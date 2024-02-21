@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"strconv"
+	"strings"
 
 	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
@@ -82,6 +83,31 @@ type Character struct {
 	Maxlvl2     string `json:"maxlvl2"`
 	Event       string `json:"event"`
 	LevelsLived string `json:"levelslived"`
+	Info        string `json:"info"`
+}
+
+func makeUpTheStory(cha Character) string {
+	character := cha.Description
+	death := cha.Event
+	character = strings.ReplaceAll(character, "<<", "<img id=\"imageleft\" src=\"")
+	character = strings.ReplaceAll(character, ">>", "\" onclick=\"showImage(this.src)\">")
+	death = strings.ReplaceAll(death, "<<", "<img id=\"imageright\" src=\"\"")
+	death = strings.ReplaceAll(death, ">>", "\" onclick=\"showImage(this.src)\">")
+	header := "<h2>" + cha.Text + "</h2>"
+
+	ending := ""
+	switch cha.Died {
+	case "y":
+		ending = "Fate: Dead"
+	case "lost":
+		ending = "Fate: Unknown"
+	case "?":
+		ending = "Fate: Retired from adventure"
+	default:
+		ending = "Fate: Alive"
+	}
+
+	return header + "<p>" + character + "</p><h5>" + ending + "</h5><p>" + death + "</p>"
 }
 
 // Function that takes the spreadsheet values and creates a list of Characters
@@ -99,56 +125,76 @@ func getSheetData() CharacterCollection {
 		log.Fatalf("An error occurred: %v", err)
 	}
 
-	characters := make([]Character, len(resp.Values)-1)
+	characters := make([]Character, 0) // Initialize an empty slice for characters
 	for i, row := range resp.Values {
 		if i == 0 {
-			continue // Skip the first line
+			continue // Skip the first line if it's a header
 		}
-		startLevel, _ := strconv.Atoi(fmt.Sprint(row[26]))
-		maxLevel, _ := strconv.Atoi(fmt.Sprint(row[28]))
-		levelsLivedInt := 1 + maxLevel - startLevel
-		var levelsLived string
-		if levelsLivedInt < 10 {
-			levelsLived = "0" + strconv.Itoa(levelsLivedInt)
-		} else {
-			levelsLived = strconv.Itoa(levelsLivedInt)
-		}
-		// log.Printf("Full response: %#v", resp.Values)
 
-		character := Character{
-			Text:        fmt.Sprint(row[0]),
-			Shortname:   fmt.Sprint(row[1]),
-			Igstart:     fmt.Sprint(row[2]),
-			Igend:       fmt.Sprint(row[3]),
-			Igtime:      fmt.Sprint(row[4]),
-			Irlstart:    fmt.Sprint(row[5]),
-			Irlend:      fmt.Sprint(row[6]),
-			Irltime:     fmt.Sprint(row[7]),
-			Race:        fmt.Sprint(row[8]),
-			Class1:      fmt.Sprint(row[9]),
-			Spec1:       fmt.Sprint(row[10]),
-			Class2:      fmt.Sprint(row[11]),
-			Spec2:       fmt.Sprint(row[12]),
-			Totalclass:  fmt.Sprint(row[13]),
-			Amalgam:     fmt.Sprint(row[14]),
-			Classtype:   fmt.Sprint(row[15]),
-			Killer_old:  fmt.Sprint(row[16]),
-			Killercr:    fmt.Sprint(row[17]),
-			Killer:      fmt.Sprint(row[18]),
-			Path:        getScenarioName(fmt.Sprint(row[19])),
-			PathNumber:  fmt.Sprint(row[19]),
-			Category:    fmt.Sprint(row[20]),
-			Died:        fmt.Sprint(row[21]),
-			Extralife:   fmt.Sprint(row[22]),
-			Ressadv:     fmt.Sprint(row[23]),
-			Resskiller:  fmt.Sprint(row[24]),
-			Crlvldiff:   fmt.Sprint(row[25]),
-			Startlevel:  fmt.Sprint(row[26]),
-			Description: fmt.Sprint(row[27]),
-			Maxlvl:      fmt.Sprint(row[28]),
-			LevelsLived: fmt.Sprint(levelsLived),
+		// Safe access function
+		safeGetString := func(index int) string {
+			if index < len(row) {
+				return fmt.Sprint(row[index])
+			}
+			return ""
 		}
-		characters[i-1] = character
+
+		// Safe access and conversion function for integers
+		safeGetInt := func(index int) int {
+			if index < len(row) {
+				if val, err := strconv.Atoi(fmt.Sprint(row[index])); err == nil {
+					return val
+				}
+			}
+			return 0 // Return 0 or a sensible default for integers
+		}
+
+		startLevel := safeGetInt(26)
+		maxLevel := safeGetInt(28)
+		levelsLivedInt := 1 + maxLevel - startLevel
+		levelsLived := strconv.Itoa(levelsLivedInt)
+		if levelsLivedInt < 10 {
+			levelsLived = "0" + levelsLived // Prefix with 0 if less than 10
+		}
+
+		// Construct the Character struct safely
+		character := Character{
+			Text:        safeGetString(0),
+			Shortname:   safeGetString(1),
+			Igstart:     safeGetString(2),
+			Igend:       safeGetString(3),
+			Igtime:      safeGetString(4),
+			Irlstart:    safeGetString(5),
+			Irlend:      safeGetString(6),
+			Irltime:     safeGetString(7),
+			Race:        safeGetString(8),
+			Class1:      safeGetString(9),
+			Spec1:       safeGetString(10),
+			Class2:      safeGetString(11),
+			Spec2:       safeGetString(12),
+			Totalclass:  safeGetString(13),
+			Amalgam:     safeGetString(14),
+			Classtype:   safeGetString(15),
+			Killer_old:  safeGetString(16),
+			Killercr:    safeGetString(17),
+			Killer:      safeGetString(18),
+			Path:        getScenarioName(safeGetString(19)),
+			PathNumber:  safeGetString(19),
+			Category:    safeGetString(20),
+			Died:        safeGetString(21),
+			Extralife:   safeGetString(22),
+			Ressadv:     safeGetString(23),
+			Resskiller:  safeGetString(24),
+			Crlvldiff:   safeGetString(25),
+			Startlevel:  safeGetString(26),
+			Description: safeGetString(27),
+			Maxlvl:      safeGetString(28),
+			Maxlvl2:     safeGetString(29),
+			Event:       safeGetString(30),
+			LevelsLived: levelsLived,
+		}
+		character.Info = makeUpTheStory(character)
+		characters = append(characters, character)
 	}
 
 	return CharacterCollection{
@@ -181,7 +227,6 @@ func getGoogleSheetData() PageVariables {
 		MyPageVariables.Content += "<td class=\"td-nobreak\">" + template.HTML(row.Race) + "<br/>"
 		MyPageVariables.Content += template.HTML(row.Class1) + "(" + template.HTML(row.Spec1) + ")<br/>"
 		MyPageVariables.Content += template.HTML(row.Class2) + "(" + template.HTML(row.Spec2) + ")<br/>"
-		MyPageVariables.Content += template.HTML(row.Classtype) + "</td>"
 		MyPageVariables.Content += "<td class=\"td-nobreak\">Killer<br/>"
 		MyPageVariables.Content += template.HTML(row.Killer_old) + "<br/>"
 		MyPageVariables.Content += template.HTML(row.Killercr) + "<br/>"

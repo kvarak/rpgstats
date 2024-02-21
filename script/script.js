@@ -58,6 +58,20 @@ function getColor(path) {
   return pathToClassMap[path] || 'defaultClass'; // Use 'defaultClass' for any unspecified paths
 }
 
+function showImage(src) {
+  // Set the source of the popup image
+  document.getElementById('popupImage').src = src;
+  // Display the popup
+  document.getElementById('imagePopup').style.display = 'flex';
+}
+
+function closePopup() {
+  // Hide the popup
+  document.getElementById('imagePopup').style.display = 'none';
+  // Remove the source of the popup image to not unnecessarily keep the image in memory
+  document.getElementById('popupImage').src = '';
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   fetch('/data/allTheData')
   .then(response => response.json())
@@ -71,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function () {
           start: character.irlstart,
           end: character.irlend,
           className: getColor(character.category),
-          customInfo: `${character.event}`
+          customInfo: `${character.info}`
         };
       })
     );
@@ -104,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function () {
         start: character.irlstart,
         end: character.irlend,
         className: getColor(character.category),
-        customInfo: `${character.event}`
+        customInfo: `${character.info}`
       }))
     );
     const options = {};
