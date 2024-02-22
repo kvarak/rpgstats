@@ -1,5 +1,14 @@
 
 
+const chartInstances = {};
+
+const ignoredClasses = [
+  'NPC',
+  'Warmage',
+  'Monk',
+];
+
+
 const backgroundColors = [
   'rgba(255, 99, 132, 0.3)',  // Red
   'rgba(54, 162, 235, 0.3)',  // Blue
@@ -82,8 +91,8 @@ document.addEventListener('DOMContentLoaded', function () {
         return {
           id: index + 1,
           content: character.text,
-          start: character.irlstart,
-          end: character.irlend,
+          start: character.igstart,
+          end: character.igend,
           className: getColor(character.category),
           customInfo: `${character.info}`
         };
@@ -249,8 +258,8 @@ function createWheel(dataUrl, canvasIdPrefix, chartTitlePrefix, classcolumns) {
     .then(data => {
       // Initialize a categories object to hold the counts of each class1 and class2
       const categories = {};
+      const shouldIgnoreClasses = document.getElementById('ignoreClassesCheckbox').checked;
 
-      // Iterate through each character to populate the categories object
       data.characters.forEach(character => {
         const category = character.category;
         const class1 = character.class1;
@@ -261,16 +270,14 @@ function createWheel(dataUrl, canvasIdPrefix, chartTitlePrefix, classcolumns) {
           categories[category] = {};
         }
 
-        // Increment count for class1
-        if (class1) {
+        // Conditionally increment count for class1
+        if (class1 && (!shouldIgnoreClasses || !ignoredClasses.includes(class1))) {
           categories[category][class1] = (categories[category][class1] || 0) + 1;
         }
 
-        if (classcolumns == "include") {
-          // Increment count for class2 if it's different from class1
-          if (class2 && class2 !== class1) {
-            categories[category][class2] = (categories[category][class2] || 0) + 1;
-          }
+        // Conditionally increment count for class2
+        if (classcolumns == "include" && class2 && class2 !== class1 && (!shouldIgnoreClasses || !ignoredClasses.includes(class2))) {
+          categories[category][class2] = (categories[category][class2] || 0) + 1;
         }
       });
 
@@ -287,14 +294,18 @@ function createWheel(dataUrl, canvasIdPrefix, chartTitlePrefix, classcolumns) {
           container.appendChild(canvasElement);
         }
 
-        const ctx = canvasElement.getContext('2d');
-
         // Prepare data for the radar chart
         const classLabels = Object.keys(categories[category]);
         const classCounts = classLabels.map(className => categories[category][className]);
 
-        // Generate the radar chart
-        new Chart(ctx, {
+        // Assuming 'chartInstances' is a global object mapping canvas IDs to chart instances
+        if (chartInstances[canvasId]) {
+          chartInstances[canvasId].destroy(); // Destroy the existing chart instance
+        }
+
+        // Now, you can create a new chart instance on the canvas
+        const ctx = canvasElement.getContext('2d');
+        chartInstances[canvasId] = new Chart(ctx, {
           type: 'radar',
           data: {
             labels: classLabels,

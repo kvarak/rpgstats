@@ -68,11 +68,10 @@
         <li data-target="timelineirl">IRL timeline</li>
         <li data-target="timelineig">In-game timeline</li>
       </ul>
-      <!-- <h2>Players</h2>
-      <div class="checkbox-container">
-        < !-- Checkboxes will be generated here by JavaScript -- >
-      </div> -->
-    </div>
+      <hr>
+      <input type="checkbox" id="ignoreClassesCheckbox" name="ignoreClasses" value="ignore">
+        <label for="ignoreClassesCheckbox">Ignore obsolete classes<br/>(currently only for wheels)</label>
+      </div>
     <div class="chart-container">
       <canvas id="charactercount" width="700" height="600" class="chart"></canvas>
       <canvas id="deathsByPath" width="700" height="600" class="chart" style="display: none;"></canvas>
@@ -129,6 +128,10 @@
       createWordCloud('/data/allTheData', 'raceCloud', aggregateRaceData);
       createChart('/data/levelsLived', 'levelsLived', 'Levels Lived (Player)');
       createChart('/data/levelsLivedPath', 'levelsLivedPath', 'Levels Lived (Path)');
+    });
+    document.getElementById('ignoreClassesCheckbox').addEventListener('change', function() {
+      createWheel('/data/allTheData', 'classWheelByPlayerExclude', 'Class Wheel (excl multi-class)', 'exclude');
+      createWheel('/data/allTheData', 'classWheelByPlayerInclude', 'Class Wheel (incl multi-class)', 'include');
     });
   </script>
 
