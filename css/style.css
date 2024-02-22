@@ -163,6 +163,13 @@ table {
   padding: 0;
 }
 
+.settingslabel {
+  font-family: ScalySansRemake;
+  vertical-align: middle;
+  font-size: small;
+}
+
+
 /* ----------------------------------------------------------------------------- */
 
 /* @media (max-width: 768px) {

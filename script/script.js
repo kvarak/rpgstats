@@ -256,55 +256,66 @@ function createWheel(dataUrl, canvasIdPrefix, chartTitlePrefix, classcolumns) {
   fetch(dataUrl)
     .then(response => response.json())
     .then(data => {
-      // Initialize a categories object to hold the counts of each class1 and class2
       const categories = {};
+      const allClasses = new Set();
       const shouldIgnoreClasses = document.getElementById('ignoreClassesCheckbox').checked;
+      const includeAllClasses = document.getElementById('includeAllClassesCheckbox').checked; // New checkbox state
 
       data.characters.forEach(character => {
         const category = character.category;
         const class1 = character.class1;
         const class2 = character.class2;
 
+        // Add to allClasses if not ignoring
+        if (!shouldIgnoreClasses || !ignoredClasses.includes(class1)) {
+          allClasses.add(class1);
+        }
+        if (class2 && (!shouldIgnoreClasses || !ignoredClasses.includes(class2))) {
+          allClasses.add(class2);
+        }
+
         // Initialize category in categories object if it doesn't exist
         if (!categories[category]) {
           categories[category] = {};
         }
 
-        // Conditionally increment count for class1
+        // Increment count for class1
         if (class1 && (!shouldIgnoreClasses || !ignoredClasses.includes(class1))) {
           categories[category][class1] = (categories[category][class1] || 0) + 1;
         }
 
-        // Conditionally increment count for class2
+        // Increment count for class2
         if (classcolumns == "include" && class2 && class2 !== class1 && (!shouldIgnoreClasses || !ignoredClasses.includes(class2))) {
           categories[category][class2] = (categories[category][class2] || 0) + 1;
         }
       });
 
+      // Convert allClasses set to an array and sort it if including all classes
+      const allClassesSorted = includeAllClasses ? Array.from(allClasses).sort() : null;
+
+      const filteredAllClasses = [...allClasses].filter(className => !shouldIgnoreClasses || !ignoredClasses.includes(className));
+
       // Iterate through each category to create a radar chart
       Object.keys(categories).forEach((category, index) => {
-        // Prepare canvas
         const canvasId = `${canvasIdPrefix}-${index}-${classcolumns}`;
         let canvasElement = document.getElementById(canvasId);
         if (!canvasElement) {
-          // If canvas does not exist, create it and append to a container
-          const container = document.getElementById("chartsContainer"); // Ensure this is your container's ID
+          const container = document.getElementById("chartsContainer");
           canvasElement = document.createElement('canvas');
           canvasElement.id = canvasId;
           container.appendChild(canvasElement);
         }
 
-        // Prepare data for the radar chart
-        const classLabels = Object.keys(categories[category]);
-        const classCounts = classLabels.map(className => categories[category][className]);
+        const ctx = canvasElement.getContext('2d');
 
-        // Assuming 'chartInstances' is a global object mapping canvas IDs to chart instances
+        // Determine classLabels based on includeAllClasses checkbox
+        const classLabels = includeAllClasses ? filteredAllClasses : Object.keys(categories[category]).filter(className => categories[category].hasOwnProperty(className) && (!shouldIgnoreClasses || !ignoredClasses.includes(className))).sort();
+        const classCounts = classLabels.map(className => categories[category][className] || 0);
+
         if (chartInstances[canvasId]) {
-          chartInstances[canvasId].destroy(); // Destroy the existing chart instance
+          chartInstances[canvasId].destroy();
         }
 
-        // Now, you can create a new chart instance on the canvas
-        const ctx = canvasElement.getContext('2d');
         chartInstances[canvasId] = new Chart(ctx, {
           type: 'radar',
           data: {
@@ -313,39 +324,28 @@ function createWheel(dataUrl, canvasIdPrefix, chartTitlePrefix, classcolumns) {
               label: `${chartTitlePrefix} - ${category}`,
               data: classCounts,
               fill: true,
-              backgroundColor: "rgba(54, 162, 235, 0.2)", // Example background color
-              borderColor: "rgba(54, 162, 235, 1)", // Example border color
-              pointBackgroundColor: "rgba(54, 162, 235, 1)", // Example point color
+              backgroundColor: "rgba(54, 162, 235, 0.2)",
+              borderColor: "rgba(54, 162, 235, 1)",
+              pointBackgroundColor: "rgba(54, 162, 235, 1)",
               pointBorderColor: "#fff",
               pointHoverBackgroundColor: "#fff",
               pointHoverBorderColor: "rgba(54, 162, 235, 1)"
             }]
           },
           options: {
-            elements: {
-              line: {
-                borderWidth: 3
-              }
-            },
-            plugins: {
-              title: {
-                display: true,
-                text: `${chartTitlePrefix} - ${category}`,
-                font: { size: 20 },
-                padding: { top: 10, bottom: 30 }
-              },
-              legend: {
-                display: false
-              }
-            },
             scales: {
               r: {
                 angleLines: {
                   display: false
                 },
-                suggestedMin: 0
+                min: 0, // Explicitly set minimum to 0
+                ticks: {
+                  // Additional tick configuration if needed
+                  stepSize: 1, // Sets the step size between ticks
+                }
               }
-            }
+            },
+            // ... other options
           }
         });
       });
