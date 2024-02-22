@@ -8,6 +8,7 @@ const ignoredClasses = [
   'Monk',
 ];
 
+const dataUrl = 'data/allTheData';
 
 const backgroundColors = [
   'rgba(255, 99, 132, 0.3)',  // Red
@@ -81,10 +82,30 @@ function closePopup() {
   document.getElementById('popupImage').src = '';
 }
 
+// Function to populate dropdowns
+function populateDropdowns(characters) {
+  const labelKeyDropdown = document.getElementById('labelKeyDropdown');
+  const valueKeyDropdown = document.getElementById('valueKeyDropdown');
+  const keys = Object.keys(characters[0]); // Assume all characters have the same keys
+
+  keys.forEach(key => {
+    const labelOption = document.createElement('option');
+    labelOption.value = key;
+    labelOption.textContent = key;
+    labelKeyDropdown.appendChild(labelOption);
+
+    const valueOption = document.createElement('option');
+    valueOption.value = key;
+    valueOption.textContent = key;
+    valueKeyDropdown.appendChild(valueOption);
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   fetch('/data/allTheData')
   .then(response => response.json())
   .then(data => {
+    populateDropdowns(data.characters)
     const container = document.getElementById("timelineig");
     const items = new vis.DataSet(
       data.characters.map((character, index) => {
@@ -151,6 +172,23 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('generateChartButton').addEventListener('click', () => {
+    const labelKey = document.getElementById('labelKeyDropdown').value;
+    const valueKey = document.getElementById('valueKeyDropdown').value;
+
+    // Hide all charts
+    const charts = document.querySelectorAll('.chart');
+    charts.forEach(chart => {
+        chart.style.display = 'none';
+    });
+    const chartToShow = document.getElementById('myChart');
+    chartToShow.style.display = 'block';
+
+    createChartCount(dataUrl, 'myChart', labelKey + ' // ' + valueKey, labelKey, [valueKey]);
+  });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('plotList').addEventListener('click', function(e) {
     if (e.target && e.target.nodeName === "LI") {
       // Hide all charts
@@ -163,7 +201,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const targetId = e.target.getAttribute('data-target');
       const chartToShow = document.getElementById(targetId);
       if (chartToShow) {
-          chartToShow.style.display = 'block';
+        chartToShow.style.display = 'block';
       }
     }
   });
@@ -282,8 +320,12 @@ function createChartCount(dataUrl, canvasId, chartTitle, labelKey, valueKeys) {
         };
       });
 
+      if (chartInstances[canvasId]) {
+        chartInstances[canvasId].destroy();
+      }
+
       // Create the chart
-      new Chart(ctx, {
+      chartInstances[canvasId] = new Chart(ctx, {
         type: 'bar',
         data: {
           labels: labelsSorted,
@@ -338,7 +380,7 @@ function createChart(dataUrl, canvasId, chartTitle) {
       };
     });
 
-    new Chart(ctx, {
+    chartInstances[canvasId] = new Chart(ctx, {
       type: 'bar',
       data: {
         labels: pathLabels,

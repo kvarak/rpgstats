@@ -48,29 +48,35 @@
   <div class="container">
     <div class="list-container">
       <ul id="plotList">
-        <h3>Deaths</h3>
+        <h4>Deaths</h4>
         <li data-target="charactercount">Deaths per Path (and Player)</li>
         <li data-target="deathsByPath">Deaths per Player (and Path)</li>
         <li data-target="killerCloud">Killer Cloud</li>
-        <h3>Classes</h3>
+        <h4>Classes</h4>
         <li data-target="classWheelByPlayerExclude">Class Wheel (excl multi-class)</li>
         <li data-target="classWheelByPlayerInclude">Class Wheel (incl multi-class)</li>
         <li data-target="classesByPlayer">Classes per Player (excl multi-class)</li>
         <li data-target="classesByPlayerMulti">Classes per Player (incl multi-class)</li>
         <li data-target="specializationCloud">Specialization Cloud</li>
-        <h3>Timelines</h3>
+        <h4>Timelines</h4>
         <li data-target="timelineirl">IRL timeline</li>
         <li data-target="timelineig">In-game timeline</li>
-        <h3>Other</h3>
+        <h4>Other</h4>
         <li data-target="raceCloud">Race Cloud</li>
         <li data-target="levelsLived">Levels Lived (Player)</li>
         <li data-target="levelsLivedPath">Levels Lived (Path)</li>
       </ul>
-      <hr>
+      <h4>Settings</h4>
       <input type="checkbox" id="ignoreClassesCheckbox" name="ignoreClasses" value="ignore">
         <label class="settingslabel" for="ignoreClassesCheckbox">Ignore obsolete classes in wheels</label><br/>
       <input type="checkbox" id="includeAllClassesCheckbox" name="includeAllClasses" value="include">
         <label class="settingslabel" for="includeAllClassesCheckbox">Include all classes in wheels</label>
+      <h4>Make your own plot</h4>
+      <select id="labelKeyDropdown"></select>
+      <select id="valueKeyDropdown"></select><br/>
+      <button id="generateChartButton">Generate Plot</button>
+
+
     </div>
     <div class="chart-container">
       <canvas id="charactercount" width="700" height="600" class="chart"></canvas>
@@ -106,7 +112,7 @@
       <canvas id="levelsLivedPath" width="700" height="600" class="chart" style="display: none;"></canvas>
       <div id="timelineirl" class="chart" style="display: none;"></div>
       <div id="timelineig" class="chart" style="display: none;"></div>
-      <!-- Add more canvas elements as needed -->
+      <canvas id="myChart" width="700" height="600" class="chart" style="display: none;"></canvas>
       <p>
         <div id="infoBox"></div>
       </p>
