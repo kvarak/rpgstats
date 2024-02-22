@@ -51,6 +51,8 @@
         <h3>Classes</h3>
         <li data-target="classesByPlayer">Classes per Player (excl multi-class)</li>
         <li data-target="classesByPlayerMulti">Classes per Player (incl multi-class)</li>
+        <li data-target="classWheelByPlayerExclude">Class Wheel (excl multi-class)</li>
+        <li data-target="classWheelByPlayerInclude">Class Wheel (incl multi-class)</li>
         <h3>Other</h3>
         <li data-target="racesByPlayer">Races per Player</li>
         <li data-target="levelsLived">Levels Lived (Player)</li>
@@ -69,6 +71,28 @@
       <canvas id="deathsByPath" width="700" height="600" class="chart" style="display: none;"></canvas>
       <canvas id="classesByPlayer" width="700" height="600" class="chart" style="display: none;"></canvas>
       <canvas id="classesByPlayerMulti" width="700" height="600" class="chart" style="display: none;"></canvas>
+      <div id="classWheelByPlayerExclude" class="chart columnstwo" width="700" height="600" style="display: none;">
+        <ul>
+          <li><canvas id="classWheelByPlayerExclude-1-exclude" width="300"></canvas></li>
+          <li><canvas id="classWheelByPlayerExclude-4-exclude" width="300"></canvas></li>
+          <li><canvas id="classWheelByPlayerExclude-3-exclude" width="300"></canvas></li>
+          <li><canvas id="classWheelByPlayerExclude-2-exclude" width="300"></canvas></li>
+          <li><canvas id="classWheelByPlayerExclude-5-exclude" width="300"></canvas></li>
+          <li><canvas id="classWheelByPlayerExclude-6-exclude" width="300"></canvas></li>
+          <li><canvas id="classWheelByPlayerExclude-0-exclude" width="300"></canvas></li>
+        </ul>
+      </div>
+      <div id="classWheelByPlayerInclude" class="chart columnstwo" width="700" height="600" style="display: none;">
+        <ul>
+          <li><canvas id="classWheelByPlayerInclude-1-include" width="300"></canvas></li>
+          <li><canvas id="classWheelByPlayerInclude-4-include" width="300"></canvas></li>
+          <li><canvas id="classWheelByPlayerInclude-3-include" width="300"></canvas></li>
+          <li><canvas id="classWheelByPlayerInclude-2-include" width="300"></canvas></li>
+          <li><canvas id="classWheelByPlayerInclude-5-include" width="300"></canvas></li>
+          <li><canvas id="classWheelByPlayerInclude-6-include" width="300"></canvas></li>
+          <li><canvas id="classWheelByPlayerInclude-0-include" width="300"></canvas></li>
+        </ul>
+      </div>
       <canvas id="racesByPlayer" width="700" height="600" class="chart" style="display: none;"></canvas>
       <canvas id="levelsLived" width="700" height="600" class="chart" style="display: none;"></canvas>
       <canvas id="levelsLivedPath" width="700" height="600" class="chart" style="display: none;"></canvas>
@@ -82,13 +106,17 @@
   </div>
 
   <script>
-    createChart('/data/charactercount', 'charactercount', 'Deaths per Path (and Player)');
-    createChart('/data/deathsByPath', 'deathsByPath', 'Deaths per Player (and Path)');
-    createChart('/data/classesByPlayer', 'classesByPlayer', 'Classes per Player (excl multi-class)');
-    createChart('/data/classesByPlayerMulti', 'classesByPlayerMulti', 'Classes per Player (incl multi-class)');
-    createChart('/data/racesByPlayer', 'racesByPlayer', 'Races per Player');
-    createChart('/data/levelsLived', 'levelsLived', 'Levels Lived (Player)');
-    createChart('/data/levelsLivedPath', 'levelsLivedPath', 'Levels Lived (Path)');
+    document.addEventListener('DOMContentLoaded', function () {
+      createChart('/data/charactercount', 'charactercount', 'Deaths per Path (and Player)');
+      createChart('/data/deathsByPath', 'deathsByPath', 'Deaths per Player (and Path)');
+      createChart('/data/classesByPlayer', 'classesByPlayer', 'Classes per Player (excl multi-class)');
+      createChart('/data/classesByPlayerMulti', 'classesByPlayerMulti', 'Classes per Player (incl multi-class)');
+      createWheel('/data/allTheData', 'classWheelByPlayerExclude', 'Class Wheel (excl multi-class)', 'exclude');
+      createWheel('/data/allTheData', 'classWheelByPlayerInclude', 'Class Wheel (incl multi-class)', 'include');
+      createChart('/data/racesByPlayer', 'racesByPlayer', 'Races per Player');
+      createChart('/data/levelsLived', 'levelsLived', 'Levels Lived (Player)');
+      createChart('/data/levelsLivedPath', 'levelsLivedPath', 'Levels Lived (Path)');
+    });
   </script>
 
   <!-- <p>{{.Content}}</p> -->

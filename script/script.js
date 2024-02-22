@@ -242,3 +242,101 @@ function createChart(dataUrl, canvasId, chartTitle) {
     });
   });
 }
+
+function createWheel(dataUrl, canvasIdPrefix, chartTitlePrefix, classcolumns) {
+  fetch(dataUrl)
+    .then(response => response.json())
+    .then(data => {
+      // Initialize a categories object to hold the counts of each class1 and class2
+      const categories = {};
+
+      // Iterate through each character to populate the categories object
+      data.characters.forEach(character => {
+        const category = character.category;
+        const class1 = character.class1;
+        const class2 = character.class2;
+
+        // Initialize category in categories object if it doesn't exist
+        if (!categories[category]) {
+          categories[category] = {};
+        }
+
+        // Increment count for class1
+        if (class1) {
+          categories[category][class1] = (categories[category][class1] || 0) + 1;
+        }
+
+        if (classcolumns == "include") {
+          // Increment count for class2 if it's different from class1
+          if (class2 && class2 !== class1) {
+            categories[category][class2] = (categories[category][class2] || 0) + 1;
+          }
+        }
+      });
+
+      // Iterate through each category to create a radar chart
+      Object.keys(categories).forEach((category, index) => {
+        // Prepare canvas
+        const canvasId = `${canvasIdPrefix}-${index}-${classcolumns}`;
+        let canvasElement = document.getElementById(canvasId);
+        if (!canvasElement) {
+          // If canvas does not exist, create it and append to a container
+          const container = document.getElementById("chartsContainer"); // Ensure this is your container's ID
+          canvasElement = document.createElement('canvas');
+          canvasElement.id = canvasId;
+          container.appendChild(canvasElement);
+        }
+
+        const ctx = canvasElement.getContext('2d');
+
+        // Prepare data for the radar chart
+        const classLabels = Object.keys(categories[category]);
+        const classCounts = classLabels.map(className => categories[category][className]);
+
+        // Generate the radar chart
+        new Chart(ctx, {
+          type: 'radar',
+          data: {
+            labels: classLabels,
+            datasets: [{
+              label: `${chartTitlePrefix} - ${category}`,
+              data: classCounts,
+              fill: true,
+              backgroundColor: "rgba(54, 162, 235, 0.2)", // Example background color
+              borderColor: "rgba(54, 162, 235, 1)", // Example border color
+              pointBackgroundColor: "rgba(54, 162, 235, 1)", // Example point color
+              pointBorderColor: "#fff",
+              pointHoverBackgroundColor: "#fff",
+              pointHoverBorderColor: "rgba(54, 162, 235, 1)"
+            }]
+          },
+          options: {
+            elements: {
+              line: {
+                borderWidth: 3
+              }
+            },
+            plugins: {
+              title: {
+                display: true,
+                text: `${chartTitlePrefix} - ${category}`,
+                font: { size: 20 },
+                padding: { top: 10, bottom: 30 }
+              },
+              legend: {
+                display: false
+              }
+            },
+            scales: {
+              r: {
+                angleLines: {
+                  display: false
+                },
+                suggestedMin: 0
+              }
+            }
+          }
+        });
+      });
+    });
+}

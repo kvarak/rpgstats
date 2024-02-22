@@ -55,7 +55,7 @@ func handleTimeSeries(w http.ResponseWriter, r *http.Request) {
 }
 
 // --------------------------------------------------------
-// HANDLE
+// HANDLE CHARACTERS
 // --------------------------------------------------------
 
 func handleAllTheData(w http.ResponseWriter, r *http.Request) {
