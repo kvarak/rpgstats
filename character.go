@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
+	"net/http"
 	"strconv"
 	"strings"
 
@@ -50,7 +52,7 @@ type CharacterCollection struct {
 }
 
 type Character struct {
-	Text        string `json:"text"`
+	Text        string `json:"name"`
 	Shortname   string `json:"shortname"`
 	Irlstart    string `json:"irlstart"`
 	Irlend      string `json:"irlend"`
@@ -71,7 +73,7 @@ type Character struct {
 	Killer      string `json:"killer"`
 	Path        string `json:"path"`
 	PathNumber  string `json:"pathnumber"`
-	Category    string `json:"category"`
+	Category    string `json:"player"`
 	Died        string `json:"died"`
 	Extralife   string `json:"extralife"`
 	Ressadv     string `json:"ressadv"`
@@ -84,6 +86,7 @@ type Character struct {
 	Event       string `json:"event"`
 	LevelsLived string `json:"levelslived"`
 	Info        string `json:"info"`
+	Deaths      string `json:"deaths"`
 }
 
 func makeUpTheStory(cha Character) string {
@@ -149,6 +152,13 @@ func getSheetData() CharacterCollection {
 			return 0 // Return 0 or a sensible default for integers
 		}
 
+		totalDeathsInt := safeGetInt(22)
+		didDie := safeGetString(21)
+		if didDie == "y" {
+			totalDeathsInt += 1
+		}
+		totalDeaths := strconv.Itoa(totalDeathsInt)
+
 		startLevel := safeGetInt(26)
 		maxLevel := safeGetInt(28)
 		levelsLivedInt := 1 + maxLevel - startLevel
@@ -192,6 +202,7 @@ func getSheetData() CharacterCollection {
 			Maxlvl2:     safeGetString(29),
 			Event:       safeGetString(30),
 			LevelsLived: levelsLived,
+			Deaths:      totalDeaths,
 		}
 		character.Info = makeUpTheStory(character)
 		characters = append(characters, character)
@@ -246,4 +257,14 @@ func getGoogleSheetData() PageVariables {
 	}
 	MyPageVariables.Content += "</table>"
 	return MyPageVariables
+}
+
+func handleAllTheData(w http.ResponseWriter, r *http.Request) {
+	collection := getSheetData()
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(collection); err != nil {
+		// Handle error
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }

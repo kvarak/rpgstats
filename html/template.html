@@ -47,26 +47,24 @@
 
   <div class="container">
     <div class="list-container">
-      <h2>Plots</h2>
       <ul id="plotList">
         <h3>Deaths</h3>
         <li data-target="charactercount">Deaths per Path (and Player)</li>
         <li data-target="deathsByPath">Deaths per Player (and Path)</li>
         <li data-target="killerCloud">Killer Cloud</li>
         <h3>Classes</h3>
-        <li data-target="classesByPlayer">Classes per Player (excl multi-class)</li>
-        <li data-target="classesByPlayerMulti">Classes per Player (incl multi-class)</li>
         <li data-target="classWheelByPlayerExclude">Class Wheel (excl multi-class)</li>
         <li data-target="classWheelByPlayerInclude">Class Wheel (incl multi-class)</li>
+        <li data-target="classesByPlayer">Classes per Player (excl multi-class)</li>
+        <li data-target="classesByPlayerMulti">Classes per Player (incl multi-class)</li>
         <li data-target="specializationCloud">Specialization Cloud</li>
+        <h3>Timelines</h3>
+        <li data-target="timelineirl">IRL timeline</li>
+        <li data-target="timelineig">In-game timeline</li>
         <h3>Other</h3>
-        <li data-target="racesByPlayer">Races per Player</li>
         <li data-target="raceCloud">Race Cloud</li>
         <li data-target="levelsLived">Levels Lived (Player)</li>
         <li data-target="levelsLivedPath">Levels Lived (Path)</li>
-        <h3>Timeline</h3>
-        <li data-target="timelineirl">IRL timeline</li>
-        <li data-target="timelineig">In-game timeline</li>
       </ul>
       <hr>
       <input type="checkbox" id="ignoreClassesCheckbox" name="ignoreClasses" value="ignore">
@@ -83,9 +81,9 @@
       <div id="classWheelByPlayerExclude" class="chart columnstwo" width="700" height="600" style="display: none;">
         <ul>
           <li><canvas id="classWheelByPlayerExclude-1-exclude" width="300"></canvas></li>
-          <li><canvas id="classWheelByPlayerExclude-4-exclude" width="300"></canvas></li>
-          <li><canvas id="classWheelByPlayerExclude-3-exclude" width="300"></canvas></li>
           <li><canvas id="classWheelByPlayerExclude-0-exclude" width="300"></canvas></li>
+          <li><canvas id="classWheelByPlayerExclude-3-exclude" width="300"></canvas></li>
+          <li><canvas id="classWheelByPlayerExclude-4-exclude" width="300"></canvas></li>
           <li><canvas id="classWheelByPlayerExclude-5-exclude" width="300"></canvas></li>
           <li><canvas id="classWheelByPlayerExclude-6-exclude" width="300"></canvas></li>
           <li><canvas id="classWheelByPlayerExclude-2-exclude" width="300"></canvas></li>
@@ -94,16 +92,15 @@
       <div id="classWheelByPlayerInclude" class="chart columnstwo" width="700" height="600" style="display: none;">
         <ul>
           <li><canvas id="classWheelByPlayerInclude-1-include" width="300"></canvas></li>
-          <li><canvas id="classWheelByPlayerInclude-4-include" width="300"></canvas></li>
-          <li><canvas id="classWheelByPlayerInclude-3-include" width="300"></canvas></li>
           <li><canvas id="classWheelByPlayerInclude-0-include" width="300"></canvas></li>
+          <li><canvas id="classWheelByPlayerInclude-3-include" width="300"></canvas></li>
+          <li><canvas id="classWheelByPlayerInclude-4-include" width="300"></canvas></li>
           <li><canvas id="classWheelByPlayerInclude-5-include" width="300"></canvas></li>
           <li><canvas id="classWheelByPlayerInclude-6-include" width="300"></canvas></li>
           <li><canvas id="classWheelByPlayerInclude-2-include" width="300"></canvas></li>
         </ul>
       </div>
       <div id="specializationCloud" width="700" height="600" class="chart" style="display: none;"></div>
-      <canvas id="racesByPlayer" width="700" height="600" class="chart" style="display: none;"></canvas>
       <div id="raceCloud" width="700" height="600" class="chart" style="display: none;"></div>
       <canvas id="levelsLived" width="700" height="600" class="chart" style="display: none;"></canvas>
       <canvas id="levelsLivedPath" width="700" height="600" class="chart" style="display: none;"></canvas>
@@ -118,18 +115,35 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      createChart('/data/charactercount', 'charactercount', 'Deaths per Path (and Player)');
-      createChart('/data/deathsByPath', 'deathsByPath', 'Deaths per Player (and Path)');
-      createWordCloud('/data/allTheData', 'killerCloud', aggregateKillerData);
-      createChart('/data/classesByPlayer', 'classesByPlayer', 'Classes per Player (excl multi-class)');
-      createChart('/data/classesByPlayerMulti', 'classesByPlayerMulti', 'Classes per Player (incl multi-class)');
+      createChartSum(
+        '/data/allTheData', 'charactercount', 'Deaths per Path (and Player)',
+        'path', ['player'], 'deaths'
+      );
+      createChartSum(
+        '/data/allTheData', 'deathsByPath', 'Deaths per Player (and Path)',
+        'player', ['path'], 'deaths'
+      );
+      createChartCount(
+        '/data/allTheData', 'classesByPlayer', 'Classes per Player (excl multi-class)',
+        'player', ['class1']
+      );
+      createChartCount(
+        '/data/allTheData', 'classesByPlayerMulti', 'Classes per Player (incl multi-class)',
+        'player', ['class1','class2']
+      );
+      createChartCount(
+        '/data/allTheData', 'levelsLived', 'Levels Lived (Player)',
+        'levelslived', ['player']
+      );
+      createChartCount(
+        '/data/allTheData', 'levelsLivedPath', 'Levels Lived (Path)',
+        'levelslived', ['path']
+      );
       createWheel('/data/allTheData', 'classWheelByPlayerExclude', 'Class Wheel (excl multi-class)', 'exclude');
       createWheel('/data/allTheData', 'classWheelByPlayerInclude', 'Class Wheel (incl multi-class)', 'include');
+      createWordCloud('/data/allTheData', 'killerCloud', aggregateKillerData);
       createWordCloud('/data/allTheData', 'specializationCloud', aggregateSpecializationData);
-      createChart('/data/racesByPlayer', 'racesByPlayer', 'Races per Player');
       createWordCloud('/data/allTheData', 'raceCloud', aggregateRaceData);
-      createChart('/data/levelsLived', 'levelsLived', 'Levels Lived (Player)');
-      createChart('/data/levelsLivedPath', 'levelsLivedPath', 'Levels Lived (Path)');
     });
     document.getElementById('ignoreClassesCheckbox').addEventListener('change', function() {
       createWheel('/data/allTheData', 'classWheelByPlayerExclude', 'Class Wheel (excl multi-class)', 'exclude');

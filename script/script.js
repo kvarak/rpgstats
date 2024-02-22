@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
           content: character.text,
           start: character.igstart,
           end: character.igend,
-          className: getColor(character.category),
+          className: getColor(character.player),
           customInfo: `${character.info}`
         };
       })
@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function () {
         content: character.text,
         start: character.irlstart,
         end: character.irlend,
-        className: getColor(character.category),
+        className: getColor(character.player),
         customInfo: `${character.info}`
       }))
     );
@@ -150,35 +150,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 
-// document.addEventListener('DOMContentLoaded', function () {
-//   // Function to dynamically create checkbox HTML for each category
-//   function createCategoryCheckboxes(categories) {
-//     const container = document.querySelector('.checkbox-container');
-//     // Clear existing checkboxes (if any)
-//     container.innerHTML = '';
-
-//     categories.forEach(category => {
-//         const label = document.createElement('label');
-//         label.innerHTML = `
-//             <input type="checkbox" class="category-checkbox" value="${category}" checked> ${category}
-//         `;
-//         container.appendChild(label);
-//     });
-//   }
-
-//   // Fetch the categories from the data
-//   fetch('/data/charactercount')
-//   .then(response => response.json())
-//   .then(data => {
-//     // Assuming data is an object where keys are category names
-//     const categories = Object.keys(data);
-//     createCategoryCheckboxes(categories);
-
-//     // After creating checkboxes, you can also initialize the chart
-//     // updateChart(...) or any other functionality you need
-//   });
-// });
-
 document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('plotList').addEventListener('click', function(e) {
     if (e.target && e.target.nodeName === "LI") {
@@ -197,6 +168,146 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 });
+
+function createChartSum(dataUrl, canvasId, chartTitle, labelKey, valueKeys, sumKey) {
+  fetch(dataUrl)
+    .then(response => response.json())
+    .then(data => {
+      const characters = data.characters;
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      const labelValuePairs = {};
+      const uniqueValues = new Set();
+
+      // Initialize labelValuePairs with an object for each label
+      characters.forEach(character => {
+        const label = character[labelKey];
+        if (!labelValuePairs[label]) {
+          labelValuePairs[label] = {};
+        }
+        valueKeys.forEach(valueKey => {
+          const value = character[valueKey];
+          if (value) {
+            uniqueValues.add(value);
+            if (!labelValuePairs[label][value]) {
+              labelValuePairs[label][value] = 0;
+            }
+            const increment = sumKey && character[sumKey] ? parseFloat(character[sumKey]) : 1;
+            labelValuePairs[label][value] += increment;
+          }
+        });
+      });
+
+      const labelsSorted = Object.keys(labelValuePairs).sort();
+      const uniqueValuesSorted = Array.from(uniqueValues).sort();
+
+      // Map each unique value to a dataset
+      const datasets = uniqueValuesSorted.map((uniqueValue, index) => {
+        const colorIndex = index % backgroundColors.length; // Ensure this variable is accessible
+        return {
+          label: uniqueValue,
+          backgroundColor: backgroundColors[colorIndex],
+          borderColor: borderColors[colorIndex],
+          borderWidth: 1,
+          data: labelsSorted.map(label => labelValuePairs[label][uniqueValue] || 0),
+        };
+      });
+
+      // Create the chart
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labelsSorted,
+          datasets: datasets,
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: { stacked: true },
+            y: { stacked: true, beginAtZero: true }
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: chartTitle,
+            },
+            legend: {
+              display: true,
+            }
+          }
+        }
+      });
+    });
+}
+
+function createChartCount(dataUrl, canvasId, chartTitle, labelKey, valueKeys) {
+  fetch(dataUrl)
+    .then(response => response.json())
+    .then(data => {
+      const characters = data.characters;
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      const labelValuePairs = {};
+      const uniqueValues = new Set();
+
+      // Initialize labelValuePairs with an object for each label
+      characters.forEach(character => {
+        const label = character[labelKey];
+        if (!labelValuePairs[label]) {
+          labelValuePairs[label] = {};
+        }
+        valueKeys.forEach(valueKey => {
+          const value = character[valueKey];
+          if (value) {
+            uniqueValues.add(value);
+            if (!labelValuePairs[label][value]) {
+              labelValuePairs[label][value] = 0;
+            }
+            // Increment the count for this value
+            labelValuePairs[label][value]++;
+          }
+        });
+      });
+
+      const labelsSorted = Object.keys(labelValuePairs).sort();
+      const uniqueValuesSorted = Array.from(uniqueValues).sort();
+
+      // Map each unique value to a dataset
+      const datasets = uniqueValuesSorted.map((uniqueValue, index) => {
+        const colorIndex = index % backgroundColors.length; // Ensure this variable is accessible
+        return {
+          label: uniqueValue,
+          backgroundColor: backgroundColors[colorIndex],
+          borderColor: borderColors[colorIndex],
+          borderWidth: 1,
+          data: labelsSorted.map(label => labelValuePairs[label][uniqueValue] || 0),
+        };
+      });
+
+      // Create the chart
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labelsSorted,
+          datasets: datasets,
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: { stacked: true },
+            y: { stacked: true, beginAtZero: true }
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: chartTitle,
+            },
+            legend: {
+              display: true,
+            }
+          }
+        }
+      });
+    });
+}
 
 function createChart(dataUrl, canvasId, chartTitle) {
   fetch(dataUrl)
@@ -262,7 +373,7 @@ function createWheel(dataUrl, canvasIdPrefix, chartTitlePrefix, classcolumns) {
       const includeAllClasses = document.getElementById('includeAllClassesCheckbox').checked; // New checkbox state
 
       data.characters.forEach(character => {
-        const category = character.category;
+        const player = character.player;
         const class1 = character.class1;
         const class2 = character.class2;
 
@@ -274,19 +385,19 @@ function createWheel(dataUrl, canvasIdPrefix, chartTitlePrefix, classcolumns) {
           allClasses.add(class2);
         }
 
-        // Initialize category in categories object if it doesn't exist
-        if (!categories[category]) {
-          categories[category] = {};
+        // Initialize player in categories object if it doesn't exist
+        if (!categories[player]) {
+          categories[player] = {};
         }
 
         // Increment count for class1
         if (class1 && (!shouldIgnoreClasses || !ignoredClasses.includes(class1))) {
-          categories[category][class1] = (categories[category][class1] || 0) + 1;
+          categories[player][class1] = (categories[player][class1] || 0) + 1;
         }
 
         // Increment count for class2
         if (classcolumns == "include" && class2 && class2 !== class1 && (!shouldIgnoreClasses || !ignoredClasses.includes(class2))) {
-          categories[category][class2] = (categories[category][class2] || 0) + 1;
+          categories[player][class2] = (categories[player][class2] || 0) + 1;
         }
       });
 
@@ -295,8 +406,8 @@ function createWheel(dataUrl, canvasIdPrefix, chartTitlePrefix, classcolumns) {
 
       const filteredAllClasses = [...allClasses].filter(className => !shouldIgnoreClasses || !ignoredClasses.includes(className));
 
-      // Iterate through each category to create a radar chart
-      Object.keys(categories).forEach((category, index) => {
+      // Iterate through each player to create a radar chart
+      Object.keys(categories).forEach((player, index) => {
         const canvasId = `${canvasIdPrefix}-${index}-${classcolumns}`;
         let canvasElement = document.getElementById(canvasId);
         if (!canvasElement) {
@@ -309,8 +420,8 @@ function createWheel(dataUrl, canvasIdPrefix, chartTitlePrefix, classcolumns) {
         const ctx = canvasElement.getContext('2d');
 
         // Determine classLabels based on includeAllClasses checkbox
-        const classLabels = includeAllClasses ? filteredAllClasses : Object.keys(categories[category]).filter(className => categories[category].hasOwnProperty(className) && (!shouldIgnoreClasses || !ignoredClasses.includes(className))).sort();
-        const classCounts = classLabels.map(className => categories[category][className] || 0);
+        const classLabels = includeAllClasses ? filteredAllClasses : Object.keys(categories[player]).filter(className => categories[player].hasOwnProperty(className) && (!shouldIgnoreClasses || !ignoredClasses.includes(className))).sort();
+        const classCounts = classLabels.map(className => categories[player][className] || 0);
 
         if (chartInstances[canvasId]) {
           chartInstances[canvasId].destroy();
@@ -321,7 +432,7 @@ function createWheel(dataUrl, canvasIdPrefix, chartTitlePrefix, classcolumns) {
           data: {
             labels: classLabels,
             datasets: [{
-              label: `${chartTitlePrefix} - ${category}`,
+              label: `${chartTitlePrefix} - ${player}`,
               data: classCounts,
               fill: true,
               backgroundColor: "rgba(54, 162, 235, 0.2)",
