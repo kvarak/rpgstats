@@ -47,5 +47,5 @@ func main() {
 	http.HandleFunc("/data/timeseries", handleTimeSeries)
 	http.HandleFunc("/data/charactercount", handleCharacterCount)
 	http.HandleFunc("/data/allTheData", handleAllTheData)
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":8089", nil)
 }

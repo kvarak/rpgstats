@@ -27,6 +27,10 @@
   <script src="https://cdn.jsdelivr.net/npm/moment"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
 
+  <!-- Wordcloud -->
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-cloud@1.2.5/build/d3.layout.cloud.js"></script>
+
   <!-- My styles -->
   <link rel="stylesheet" href="/css/style.css">
 
@@ -48,13 +52,16 @@
         <h3>Deaths</h3>
         <li data-target="charactercount">Deaths per Path (and Player)</li>
         <li data-target="deathsByPath">Deaths per Player (and Path)</li>
+        <li data-target="killerCloud">Killer Cloud</li>
         <h3>Classes</h3>
         <li data-target="classesByPlayer">Classes per Player (excl multi-class)</li>
         <li data-target="classesByPlayerMulti">Classes per Player (incl multi-class)</li>
         <li data-target="classWheelByPlayerExclude">Class Wheel (excl multi-class)</li>
         <li data-target="classWheelByPlayerInclude">Class Wheel (incl multi-class)</li>
+        <li data-target="specializationCloud">Specialization Cloud</li>
         <h3>Other</h3>
         <li data-target="racesByPlayer">Races per Player</li>
+        <li data-target="raceCloud">Race Cloud</li>
         <li data-target="levelsLived">Levels Lived (Player)</li>
         <li data-target="levelsLivedPath">Levels Lived (Path)</li>
         <h3>Timeline</h3>
@@ -69,6 +76,7 @@
     <div class="chart-container">
       <canvas id="charactercount" width="700" height="600" class="chart"></canvas>
       <canvas id="deathsByPath" width="700" height="600" class="chart" style="display: none;"></canvas>
+      <div id="killerCloud" width="700" height="600" class="chart" style="display: none;"></div>
       <canvas id="classesByPlayer" width="700" height="600" class="chart" style="display: none;"></canvas>
       <canvas id="classesByPlayerMulti" width="700" height="600" class="chart" style="display: none;"></canvas>
       <div id="classWheelByPlayerExclude" class="chart columnstwo" width="700" height="600" style="display: none;">
@@ -93,7 +101,9 @@
           <li><canvas id="classWheelByPlayerInclude-0-include" width="300"></canvas></li>
         </ul>
       </div>
+      <div id="specializationCloud" width="700" height="600" class="chart" style="display: none;"></div>
       <canvas id="racesByPlayer" width="700" height="600" class="chart" style="display: none;"></canvas>
+      <div id="raceCloud" width="700" height="600" class="chart" style="display: none;"></div>
       <canvas id="levelsLived" width="700" height="600" class="chart" style="display: none;"></canvas>
       <canvas id="levelsLivedPath" width="700" height="600" class="chart" style="display: none;"></canvas>
       <div id="timelineirl" class="chart" style="display: none;"></div>
@@ -109,11 +119,14 @@
     document.addEventListener('DOMContentLoaded', function () {
       createChart('/data/charactercount', 'charactercount', 'Deaths per Path (and Player)');
       createChart('/data/deathsByPath', 'deathsByPath', 'Deaths per Player (and Path)');
+      createWordCloud('/data/allTheData', 'killerCloud', aggregateKillerData);
       createChart('/data/classesByPlayer', 'classesByPlayer', 'Classes per Player (excl multi-class)');
       createChart('/data/classesByPlayerMulti', 'classesByPlayerMulti', 'Classes per Player (incl multi-class)');
       createWheel('/data/allTheData', 'classWheelByPlayerExclude', 'Class Wheel (excl multi-class)', 'exclude');
       createWheel('/data/allTheData', 'classWheelByPlayerInclude', 'Class Wheel (incl multi-class)', 'include');
+      createWordCloud('/data/allTheData', 'specializationCloud', aggregateSpecializationData);
       createChart('/data/racesByPlayer', 'racesByPlayer', 'Races per Player');
+      createWordCloud('/data/allTheData', 'raceCloud', aggregateRaceData);
       createChart('/data/levelsLived', 'levelsLived', 'Levels Lived (Player)');
       createChart('/data/levelsLivedPath', 'levelsLivedPath', 'Levels Lived (Path)');
     });

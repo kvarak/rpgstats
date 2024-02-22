@@ -340,3 +340,87 @@ function createWheel(dataUrl, canvasIdPrefix, chartTitlePrefix, classcolumns) {
       });
     });
 }
+
+
+// Killer word cloud
+
+function aggregateKillerData(data) {
+  const counts = {};
+
+  data.characters.forEach(character => {
+      const { killer, killer_old } = character;
+      if (killer) {
+          counts[killer] = (counts[killer] || 0) + 1;
+      }
+      if (killer_old) {
+          counts[killer_old] = (counts[killer_old] || 0) + 1;
+      }
+  });
+
+  return counts;
+}
+
+function aggregateRaceData(data) {
+  const counts = {};
+
+  data.characters.forEach(character => {
+    const { race } = character;
+    if (race) {
+      counts[race] = (counts[race] || 0) + 1;
+    }
+  });
+
+  return counts;
+}
+
+function aggregateSpecializationData(data) {
+  const counts = {};
+
+  data.characters.forEach(character => {
+    const { spec1, spec2 } = character;
+    if (spec1 && spec1 !== "<low lvl>") {
+        counts[spec1] = (counts[spec1] || 0) + 1;
+    }
+    if (spec2 && spec2 !== "<low lvl>") {
+        counts[spec2] = (counts[spec2] || 0) + 1;
+    }
+});
+
+  return counts;
+}
+
+function createWordCloud(dataUrl, cloudId, aggregateFunction) {
+  fetch(dataUrl)
+    .then(response => response.json())
+    .then(data => {
+      const dataCounts = aggregateFunction(data);
+      const wordEntries = Object.entries(dataCounts).map(([text, size]) => ({ text, size }));
+
+      const layout = d3.layout.cloud()
+        .size([800, 600])
+        .words(wordEntries.map(d => ({text: d.text, size: d.size * 10}))) // Adjust size scaling as needed
+        .padding(5)
+        .rotate(() => ~~(Math.random() * 2) * 90)
+        .font("Impact")
+        .fontSize(d => d.size)
+        .on("end", draw);
+
+      layout.start();
+
+      function draw(words) {
+        d3.select(`#${cloudId}`).append("svg")
+          .attr("width", layout.size()[0])
+          .attr("height", layout.size()[1])
+          .append("g")
+          .attr("transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")")
+          .selectAll("text")
+          .data(words)
+          .enter().append("text")
+          .style("font-size", d => d.size + "px")
+          .style("font-family", "Impact")
+          .attr("text-anchor", "middle")
+          .attr("transform", d => "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")")
+          .text(d => d.text);
+      }
+    });
+}
