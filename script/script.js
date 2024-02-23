@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function () {
       data.characters.map((character, index) => {
         return {
           id: index + 1,
-          content: character.text,
+          content: character.name,
           start: character.igstart,
           end: character.igend,
           className: getColor(character.player),
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const items = new vis.DataSet(
       data.characters.map((character, index) => ({
         id: index + 1,
-        content: character.text,
+        content: character.name,
         start: character.irlstart,
         end: character.irlend,
         className: getColor(character.player),
