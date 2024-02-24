@@ -54,6 +54,7 @@
   <div class="container">
     <div class="list-container">
       <ul id="plotList">
+        <li data-target="currentAdventurers">Current Adventurers</li>
         <h4>Deaths</h4>
         <li data-target="charactercount">Deaths per Path (and Player)</li>
         <li data-target="deathsByPath">Deaths per Player (and Path)</li>
@@ -92,7 +93,8 @@
 
     </div>
     <div class="chart-container">
-      <canvas id="charactercount" width="700" height="600" class="chart"></canvas>
+      <div class="chart" id="currentAdventurers" style="display: block;">{{.Content}}</div>
+      <canvas id="charactercount" width="700" height="600" class="chart" style="display: none;"></canvas>
       <canvas id="deathsByPath" width="700" height="600" class="chart" style="display: none;"></canvas>
       <div id="killerCloud" width="700" height="600" class="chart" style="display: none;"></div>
       <canvas id="classesByPlayer" width="700" height="600" class="chart" style="display: none;"></canvas>
@@ -205,6 +207,5 @@
     });
   </script>
 
-  <!-- <p>{{.Content}}</p> -->
 </body>
 </html>

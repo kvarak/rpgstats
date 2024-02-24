@@ -24,9 +24,6 @@ func main() {
 
 	})
 
-	// collection := getSheetData()
-	// generateStatistics(collection)
-
 	fsCampaigns := http.FileServer(http.Dir("campaigns"))
 	http.Handle("/campaigns/", http.StripPrefix("/campaigns/", fsCampaigns))
 	fsFonts := http.FileServer(http.Dir("fonts"))
@@ -38,14 +35,6 @@ func main() {
 	fsCss := http.FileServer(http.Dir("css"))
 	http.Handle("/css/", http.StripPrefix("/css/", fsCss))
 
-	// http.HandleFunc("/data/levelsLivedPath", handleLevelsLivedPath)
-	// http.HandleFunc("/data/levelsLived", handleLevelsLived)
-	// http.HandleFunc("/data/racesByPlayer", handleRacesByPlayer)
-	// http.HandleFunc("/data/classesByPlayer", handleClassesByPlayer)
-	// http.HandleFunc("/data/classesByPlayerMulti", handleClassesByPlayerMulti)
-	// http.HandleFunc("/data/deathsByPath", handleDeathsByPath)
-	// http.HandleFunc("/data/timeseries", handleTimeSeries)
-	// http.HandleFunc("/data/charactercount", handleCharacterCount)
 	http.HandleFunc("/data/allTheData", handleAllTheData)
 	http.ListenAndServe(":8089", nil)
 }

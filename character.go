@@ -2,44 +2,16 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
-	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
 )
-
-func getScenarioName(number string) string {
-	switch number {
-	case "1":
-		return "01: Rise of the Runelords"
-	case "2":
-		return "02: Curse of the Crimson Throne"
-	case "3":
-		return "03: Second Darkness"
-	case "4":
-		return "04: Legacy of Fire"
-	case "5":
-		return "05: Vanguard of Hope"
-	case "6":
-		return "06: Into the Dark Continent"
-	case "7":
-		return "07: Haunted Lands"
-	case "8":
-		return "08: Return to Sandpoint"
-	case "9":
-		return "09: Skull & Shackles"
-	case "10":
-		return "10: Pathfinders"
-	default:
-		return "99: Unknown"
-	}
-}
 
 type PageVariables struct {
 	Title   string
@@ -371,48 +343,40 @@ func getGoogleSheetData() PageVariables {
 		Content: "",
 	}
 
-	MyPageVariables.Content += "<table>"
+	todaysDate := time.Now().Format("2006-01-02")
+
+	MyPageVariables.Content += "<h1>Our current adventurers</h1>"
+
 	for _, row := range data.Characters {
-		MyPageVariables.Content += "<tr>"
-		MyPageVariables.Content += "<td class=\"td-nobreak\">" + template.HTML(row.Path) + "</td>"
-		MyPageVariables.Content += "<td class=\"td-nobreak\">" + template.HTML(row.Text) + "</td>"
-		// MyPageVariables.Content += "<td class=\"td-nobreak\">" + template.HTML(row.Shortname) + "</td>"
-		MyPageVariables.Content += "<td class=\"td-nobreakcenter\">" + template.HTML(row.Irlstart) + "<br/>-<br/>"
-		MyPageVariables.Content += template.HTML(row.Irlend) + "<br/><br/>"
-		MyPageVariables.Content += template.HTML(row.Irltime) + " days IRL</td>"
-		MyPageVariables.Content += "<td class=\"td-nobreakcenter\">" + template.HTML(row.Igstart) + "<br/>-<br/>"
-		MyPageVariables.Content += template.HTML(row.Igend) + "<br/><br/>"
-		MyPageVariables.Content += template.HTML(row.Igtime) + " days in-game</td>"
-		MyPageVariables.Content += "<td class=\"td-nobreak\">" + template.HTML(row.Race) + "<br/>"
-		MyPageVariables.Content += template.HTML(row.Class1) + "(" + template.HTML(row.Spec1) + ")<br/>"
-		MyPageVariables.Content += template.HTML(row.Class2) + "(" + template.HTML(row.Spec2) + ")<br/>"
-		MyPageVariables.Content += "<td class=\"td-nobreak\">Killer<br/>"
-		MyPageVariables.Content += template.HTML(row.Killer_old) + "<br/>"
-		MyPageVariables.Content += template.HTML(row.Killercr) + "<br/>"
-		MyPageVariables.Content += template.HTML(row.Killer) + "<br/>"
-		MyPageVariables.Content += template.HTML(row.Crlvldiff) + "</td>"
-		MyPageVariables.Content += "<td class=\"td-nobreak\">" + template.HTML(row.Category) + "</td>"
-		MyPageVariables.Content += "<td class=\"td-nobreak\">" + template.HTML(row.Died) + "</td>"
-		MyPageVariables.Content += "<td class=\"td-nobreak\">" + template.HTML(row.Extralife) + "</td>"
-		MyPageVariables.Content += "<td class=\"td-nobreak\">" + template.HTML(row.Ressadv) + "</td>"
-		MyPageVariables.Content += "<td class=\"td-nobreak\">" + template.HTML(row.Resskiller) + "</td>"
-		MyPageVariables.Content += "<td class=\"td-nobreak\">" + template.HTML(row.Startlevel) + "</td>"
-		MyPageVariables.Content += "<td>" + template.HTML(row.Description) + "</td>"
-		MyPageVariables.Content += "<td>" + template.HTML(row.Maxlvl) + "</td>"
-		MyPageVariables.Content += "<td>" + template.HTML(row.Maxlvl2) + "</td>"
-		MyPageVariables.Content += "<td>" + template.HTML(row.Event) + "</td>"
-		MyPageVariables.Content += "</tr>"
+
+		if row.Irlend == todaysDate {
+			name := template.HTML(row.Shortname)
+			MyPageVariables.Content += "<h4>" + template.HTML(row.Text) + "</h4>"
+			MyPageVariables.Content += "<p class=\"story\">"
+			MyPageVariables.Content += name + " is a "
+			MyPageVariables.Content += template.HTML(row.Race) + " "
+			MyPageVariables.Content += template.HTML(row.Totalclass) + ". "
+			MyPageVariables.Content += "Rumour has it that they joined the adventure at " + template.HTML(row.Igstart) + ". "
+			MyPageVariables.Content += "</p>"
+
+			extralife, _ := strconv.Atoi(row.Extralife)
+			if extralife > 0 {
+				MyPageVariables.Content += "<p class=\"story\">"
+				MyPageVariables.Content += "As an adventurer, " + name + " has been granted " + template.HTML(row.Extralife) + " extra lives. "
+				MyPageVariables.Content += "</p>"
+			}
+
+			story := row.Description
+			story = strings.ReplaceAll(story, "<<", "<img id=\"imageleft\" src=\"")
+			story = strings.ReplaceAll(story, ">>", "\" onclick=\"showImage(this.src)\">")
+			MyPageVariables.Content += "<p class=\"story\">" + template.HTML(story) + "</p>"
+
+			MyPageVariables.Content += "<p class=\"story\"><i>IRL: Started at "
+			MyPageVariables.Content += template.HTML(row.Irlstart) + "; "
+			MyPageVariables.Content += template.HTML(row.Irltime) + " days ago."
+			MyPageVariables.Content += "</i></p>"
+		}
 	}
 	MyPageVariables.Content += "</table>"
 	return MyPageVariables
-}
-
-func handleAllTheData(w http.ResponseWriter, r *http.Request) {
-	collection := getSheetData()
-
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(collection); err != nil {
-		// Handle error
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
 }
