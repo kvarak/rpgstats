@@ -52,41 +52,86 @@ type CharacterCollection struct {
 }
 
 type Character struct {
-	Text        string `json:"name"`
-	Shortname   string `json:"shortname"`
-	Irlstart    string `json:"irlstart"`
-	Irlend      string `json:"irlend"`
-	Irltime     string `json:"irltime"`
-	Igstart     string `json:"igstart"`
-	Igend       string `json:"igend"`
-	Igtime      string `json:"igtime"`
-	Race        string `json:"race"`
-	Class1      string `json:"class1"`
-	Spec1       string `json:"spec1"`
-	Class2      string `json:"class2"`
-	Spec2       string `json:"spec2"`
-	Totalclass  string `json:"totalclass"`
-	Amalgam     string `json:"amalgam"`
-	Classtype   string `json:"classtype"`
-	Killer_old  string `json:"killer_old"`
-	Killercr    string `json:"killercr"`
-	Killer      string `json:"killer"`
-	Path        string `json:"path"`
-	PathNumber  string `json:"pathnumber"`
-	Category    string `json:"player"`
-	Died        string `json:"died"`
-	Extralife   string `json:"extralife"`
-	Ressadv     string `json:"ressadv"`
-	Resskiller  string `json:"resskiller"`
-	Crlvldiff   string `json:"crlvldiff"`
-	Startlevel  string `json:"startlevel"`
-	Description string `json:"description"`
-	Maxlvl      string `json:"maxlvl"`
-	Maxlvl2     string `json:"maxlvl2"`
-	Event       string `json:"event"`
-	LevelsLived string `json:"levelslived"`
-	Info        string `json:"info"`
-	Deaths      string `json:"deaths"`
+	Text           string `json:"name"`
+	Shortname      string `json:"shortname"`
+	Irlstart       string `json:"irlstart"`
+	Irlend         string `json:"irlend"`
+	Irltime        string `json:"irltime"`
+	Igstart        string `json:"igstart"`
+	Igend          string `json:"igend"`
+	Igtime         string `json:"igtime"`
+	Race           string `json:"race"`
+	Class1         string `json:"class1"`
+	Spec1          string `json:"spec1"`
+	Class2         string `json:"class2"`
+	Spec2          string `json:"spec2"`
+	Totalclass     string `json:"totalclass"`
+	Amalgam        string `json:"amalgam"`
+	Classtype      string `json:"classtype"`
+	Killer_old     string `json:"killer_old"`
+	Killercr       string `json:"killercr"`
+	Killer         string `json:"killer"`
+	Path           string `json:"path"`
+	PathNumber     string `json:"pathnumber"`
+	Category       string `json:"player"`
+	Died           string `json:"died"`
+	Extralife      string `json:"extralife"`
+	Ressadv        string `json:"ressadv"`
+	Resskiller     string `json:"resskiller"`
+	Crlvldiff      string `json:"crlvldiff"`
+	Startlevel     string `json:"startlevel"`
+	Description    string `json:"description"`
+	Maxlvl         string `json:"maxlvl"`
+	Maxlvl2        string `json:"maxlvl2"`
+	Event          string `json:"event"`
+	LevelsLived    string `json:"levelslived"`
+	Info           string `json:"info"`
+	Deaths         string `json:"deaths"`
+	Lifescore      string `json:"lifescore"`
+	Classscore     string `json:"classscore"`
+	Classaverage   string `json:"classaverage"`
+	Pathscore      string `json:"pathscore"`
+	Pathaverage    string `json:"pathaverage"`
+	Playerscore    string `json:"playerscore"`
+	Playeraverage  string `json:"playeraverage"`
+	Characterscore string `json:"characterscore"`
+	Totalscore     string `json:"totalscore"`
+}
+
+func calculateScore(character Character) string {
+	// Define weights for attributes
+	const survivedWeight float64 = 2
+	const extralifeWeight float64 = 1
+	const crlvldiffWeight float64 = 0.5
+	const levelsLivedWeight float64 = 0.25
+
+	// Start with a base score
+	var score float64 = 0
+
+	// Add score if the character didn't sie at the end
+	if strings.ToLower(character.Died) == "n" {
+		score += survivedWeight * 2
+	} else if strings.ToLower(character.Died) != "y" {
+		score += survivedWeight
+	}
+
+	// Subtract score based on extralife
+	if extralife, err := strconv.Atoi(character.Extralife); err == nil {
+		score -= extralifeWeight * float64(extralife)
+	}
+
+	// Subtract score based on crlvldiff
+	// If killed by a creature of a higher level, Crlvldiff is negative
+	if crlvldiff, err := strconv.Atoi(character.Crlvldiff); err == nil {
+		score -= crlvldiffWeight * float64(crlvldiff)
+	}
+
+	// Add score based on levels lived
+	if levelsLived, err := strconv.Atoi(character.LevelsLived); err == nil {
+		score += levelsLivedWeight * float64(levelsLived)
+	}
+
+	return strconv.Itoa(int(score))
 }
 
 func makeUpTheStory(cha Character) string {
@@ -111,6 +156,44 @@ func makeUpTheStory(cha Character) string {
 	}
 
 	return header + "<p>" + character + "</p><h5>" + ending + "</h5><p>" + death + "</p>"
+}
+
+func normalizeLifescores(characters []Character) ([]Character, error) {
+	var min, max float64
+	first := true
+
+	// Find min and max Lifescore values
+	for _, c := range characters {
+		score, err := strconv.ParseFloat(c.Lifescore, 64)
+		if err != nil {
+			return nil, err // Handle the error appropriately
+		}
+
+		if first {
+			min, max = score, score
+			first = false
+		} else {
+			if score < min {
+				min = score
+			}
+			if score > max {
+				max = score
+			}
+		}
+	}
+
+	// Normalize Lifescores to a 1-100 scale
+	for i, c := range characters {
+		score, err := strconv.ParseFloat(c.Lifescore, 64)
+		if err != nil {
+			return nil, err // Handle the error appropriately
+		}
+
+		normalized := int(1 + ((score - min) * 99 / (max - min)))
+		characters[i].Lifescore = strconv.Itoa(normalized)
+	}
+
+	return characters, nil
 }
 
 // Function that takes the spreadsheet values and creates a list of Characters
@@ -205,7 +288,72 @@ func getSheetData() CharacterCollection {
 			Deaths:      totalDeaths,
 		}
 		character.Info = makeUpTheStory(character)
+		character.Lifescore = calculateScore(character)
 		characters = append(characters, character)
+	}
+
+	characters, err = normalizeLifescores(characters)
+	if err != nil {
+		fmt.Println("Error normalizing Lifescores:", err)
+	}
+
+	// Calculate the average character.Lifescore for each character.Path
+	// And save it into character.Pathaverage
+	scores := make(map[string]float64)
+	counts := make(map[string]int)
+	for _, character := range characters {
+		lifescore, _ := strconv.ParseFloat(character.Lifescore, 64)
+		scores[character.Path] += lifescore
+		counts[character.Path]++
+	}
+	for i := range characters {
+		lookup := characters[i].Path
+		average := int(scores[lookup] / float64(counts[lookup]))
+		characters[i].Pathaverage = strconv.Itoa(average)
+		lifescore, _ := strconv.Atoi(characters[i].Lifescore)
+		characters[i].Pathscore = strconv.Itoa((lifescore - average + 100) / 2)
+	}
+
+	// Calculate the average character.Lifescore for each character.Totalclass
+	// And save it into character.Classaverage
+	scores = make(map[string]float64)
+	counts = make(map[string]int)
+	for _, character := range characters {
+		lifescore, _ := strconv.ParseFloat(character.Lifescore, 64)
+		scores[character.Totalclass] += lifescore
+		counts[character.Totalclass]++
+	}
+	for i := range characters {
+		lookup := characters[i].Totalclass
+		average := int(scores[lookup] / float64(counts[lookup]))
+		characters[i].Classaverage = strconv.Itoa(average)
+		lifescore, _ := strconv.Atoi(characters[i].Lifescore)
+		characters[i].Classscore = strconv.Itoa((lifescore - average + 100) / 2)
+	}
+
+	// Calculate the average character.Lifescore for each character.Category
+	// And save it into character.Playeraverage
+	scores = make(map[string]float64)
+	counts = make(map[string]int)
+	for _, character := range characters {
+		lifescore, _ := strconv.ParseFloat(character.Lifescore, 64)
+		scores[character.Category] += lifescore
+		counts[character.Category]++
+	}
+	for i := range characters {
+		lookup := characters[i].Category
+		average := int(scores[lookup] / float64(counts[lookup]))
+		characters[i].Playeraverage = strconv.Itoa(average)
+		lifescore, _ := strconv.Atoi(characters[i].Lifescore)
+		characters[i].Playerscore = strconv.Itoa((lifescore - average + 100) / 2)
+	}
+
+	for i := range characters {
+		class, _ := strconv.Atoi(characters[i].Classscore)
+		// player, _ := strconv.Atoi(characters[i].Playerscore)
+		path, _ := strconv.Atoi(characters[i].Pathscore)
+		life, _ := strconv.Atoi(characters[i].Lifescore)
+		characters[i].Characterscore = strconv.Itoa(class + path + life)
 	}
 
 	return CharacterCollection{

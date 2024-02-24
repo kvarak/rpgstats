@@ -351,58 +351,136 @@ function createChartCount(dataUrl, canvasId, chartTitle, labelKey, valueKeys) {
     });
 }
 
-function createChart(dataUrl, canvasId, chartTitle) {
+function createChartAverageScore(dataUrl, canvasId, chartTitle, groupKey, averageKey) {
   fetch(dataUrl)
-  .then(response => response.json())
-  .then(data => {
-    const ctx = document.getElementById(canvasId).getContext('2d');
-    const allPaths = new Set();
-    const names = Object.keys(data);
+    .then(response => response.json())
+    .then(data => {
+      const characters = data.characters;
+      const ctx = document.getElementById(canvasId).getContext('2d');
 
-    // Aggregate all unique paths across all names
-    names.forEach(name => {
-      Object.keys(data[name]).forEach(path => {
-        allPaths.add(path);
-      });
-    });
+      // Sort characters by the specified path average in descending order
+      characters.sort((a, b) => Number(b[averageKey]) - Number(a[averageKey]));
+      const uniqueCharacters = characters.filter((character, index, self) =>
+        index === self.findIndex((c) => c[groupKey] === character[groupKey])
+      );
 
-    const pathLabels = Array.from(allPaths).sort();
-    const datasets = names.map((name, index) => {
-      const colorIndex = index % backgroundColors.length; // Ensure this variable is accessible
-      const dataForName = pathLabels.map(path => data[name][path] || 0);
+      if (chartInstances[canvasId]) {
+        chartInstances[canvasId].destroy();
+      }
 
-      return {
-        label: name,
-        data: dataForName,
-        backgroundColor: backgroundColors[colorIndex],
-        borderColor: borderColors[colorIndex],
-        borderWidth: 1
-      };
-    });
-
-    chartInstances[canvasId] = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: pathLabels,
-        datasets: datasets
-      },
-      options: {
-        responsive: false,
-        scales: {
-          x: { stacked: true },
-          y: { stacked: true, beginAtZero: true }
+      // Create the chart
+      chartInstances[canvasId] = new Chart(ctx, {
+        type: 'bar', // Use 'horizontalBar' for horizontal bar chart
+        data: {
+          labels: uniqueCharacters.map(character => character[groupKey]), // Use path as labels for y-axis
+          datasets: [{
+            label: 'Average Score',
+            data: uniqueCharacters.map(character => Number(character[averageKey])), // Use path average as bar lengths
+            backgroundColor: 'rgba(54, 162, 235, 0.2)', // A single color for all bars
+            borderColor: 'rgba(54, 162, 235, 1)', // A single border color for all bars
+            borderWidth: 1,
+          }]
         },
-        plugins: {
-          title: {
-            display: true,
-            text: chartTitle,
-            font: { size: 20 },
-            padding: { top: 10, bottom: 30 }
+        options: {
+          indexAxis: 'y', // Set 'y' to make the bar chart horizontal
+          responsive: true,
+          scales: {
+            x: {
+              beginAtZero: true,
+              max: 100, // Explicitly set maximum to 100
+            }
+          },
+          plugins: {
+            legend: {
+              display: false,
+            },
+            title: {
+              display: true,
+              text: chartTitle,
+            }
           }
         }
-      }
+      });
     });
-  });
+}
+
+function createChartScore(dataUrl, canvasId, chartTitle) {
+  fetch(dataUrl)
+    .then(response => response.json())
+    .then(data => {
+      const characters = data.characters;
+      const ctx = document.getElementById(canvasId).getContext('2d');
+
+      // Sort characters by characterscore in descending order
+      characters.sort((a, b) => Number(b.characterscore) - Number(a.characterscore));
+
+      // Create datasets for each score type with fixed colors
+      const datasets = [
+        {
+          label: 'Path Score',
+          data: characters.map(character => Number(character.pathscore)),
+          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'Class Score',
+          data: characters.map(character => Number(character.classscore)),
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'Life Score',
+          data: characters.map(character => Number(character.lifescore)),
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        }
+      ];
+
+      if (chartInstances[canvasId]) {
+        chartInstances[canvasId].destroy(); // Destroy the previous instance if it exists
+      }
+
+      // Create the chart
+      chartInstances[canvasId] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: characters.map(character => character.name),
+          datasets: datasets
+        },
+        options: {
+          indexAxis: 'y', // Horizontal bar chart
+          responsive: true,
+          scales: {
+            x: {
+              stacked: true, // Stacked bar chart
+              beginAtZero: true
+            }
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const character = characters[context.dataIndex];
+                  const scoreType = context.dataset.label;
+                  const scoreValue = context.parsed.x;
+                  return `${character.name} - ${scoreType}: ${scoreValue}`;
+                }
+              }
+            },
+            title: {
+              display: true,
+              text: chartTitle
+            },
+            legend: {
+              display: true // Set to true if you want to display the legend
+            }
+          }
+        }
+      });
+    });
 }
 
 function createWheel(dataUrl, canvasIdPrefix, chartTitlePrefix, classcolumns) {
@@ -518,6 +596,22 @@ function aggregateKillerData(data) {
       }
       if (killer_old) {
           counts[killer_old] = (counts[killer_old] || 0) + 1;
+      }
+  });
+
+  return counts;
+}
+
+function aggregateClassData(data) {
+  const counts = {};
+
+  data.characters.forEach(character => {
+      const { class1, class2 } = character;
+      if (class1) {
+          counts[class1] = (counts[class1] || 0) + 1;
+      }
+      if (class2) {
+          counts[class2] = (counts[class2] || 0) + 1;
       }
   });
 
