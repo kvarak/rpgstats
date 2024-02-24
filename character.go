@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"hash/fnv"
 	"html/template"
 	"log"
 	"strconv"
@@ -333,6 +334,56 @@ func getSheetData() CharacterCollection {
 	}
 }
 
+func generateStory(character Character) string {
+	templates := []string{
+		"From {date}, tales of {name}, a {race} {class}, spread like wildfire, a testament to their indomitable spirit and unyielding resolve.",
+		"On {date}, {name} the {race} {class} set sail towards destiny, their eyes set on horizons that many deemed unreachable.",
+		"Starting on {date}, {name}'s name became synonymous with courage as the {race} {class} ventured into the unknown, a beacon of hope in dark times.",
+		"Armed with ancient knowledge and the heart of a warrior, {name}, the {race} {class}, embarked on their fabled journey on {date}.",
+		"As the stars aligned on {date}, so did the fate of {name}, the {race} {class}, whose name would become etched in the eternal chronicles of time.",
+		"The saga of {name} began on {date}, a {race} {class} whose bravery transcended the tales of old, venturing into realms where angels dare not tread.",
+		"On {date}, {name} the {race} {class}, took an oath beneath the ancient oaks, a vow that would steer them through battles unseen and foes unknown.",
+		"A whisper on the wind on {date} spoke of {name}, a {race} {class}, chosen by destiny to walk a path lined with shadow and light.",
+		"None could have predicted on {date}, how {name}, a simple {race} {class}, would shake the very foundations of the world with their deeds.",
+		"It was on {date} that {name}, the {race} {class}, emerged from the mists of legend, a force to be reckoned with, in pursuit of a destiny foretold.",
+		"With a heart as fierce as dragons and a will unbreakable, {name}, the {race} {class}, embarked on their legendary quest on {date}, a journey that would echo through ages.",
+		"On {date}, {name} the {race} {class}, cast aside all doubt, embracing a destiny that would intertwine their name with the essence of adventure itself.",
+		"The legacy of {name}, a {race} {class}, was forged on {date}, amidst the flames of destiny, to become a beacon for those who dare to dream.",
+		"From the tranquil shores of {date}, {name}, a {race} {class}, set sail towards the tempest of the unknown, their story a canvas for the ages.",
+		"Every tavern's tale and every child's bedtime story held the feats of {name}, the {race} {class}, in awe. It's said that fate's wheel began to turn on {date}.",
+		"In the heart of the dense forests, whispers tell of {name}, the {race} {class}. Their journey is said to have begun on {date}, seeking what lies beyond the known paths.",
+		"Legends echo through the halls of time about {name}, a {class} of {race} origin, whose adventures embarked from the ancient ruins on {date}.",
+		"Fate's hand guided {name}, the {race} {class}, from a humble beginning on {date} to the cusp of reshaping history itself.",
+		"Under the silver moon on {date}, {name} the {race} {class} pledged to unravel the mysteries that bind the realms.",
+		"It is said that on {date}, the winds of fortune whispered to {name}, a {class} of {race}, propelling them on a quest that would enter the annals of legend.",
+		"Beneath the gaze of the crimson moon on {date}, {name} the {race} {class}, embarked on a journey that would etch their name across the heavens and into the annals of history.",
+		"On {date}, in the shadow of ancient ruins, {name}, a {race} {class}, uncovered a truth so powerful it threatened to unravel the very fabric of existence.",
+		"{name}, the {race} {class}, found their destiny intertwined with the fate of the world on {date}, when a prophecy whispered from the lips of the dying sun came to pass.",
+		"The echoes of {name}'s valorous deeds, a {race} {class}, begun on {date}, still resound through the hallowed halls where heroes are remembered.",
+		"On {date}, {name}, a {race} {class}, stood at the crossroads of fate, their decision a beacon that would guide the lost through the darkness.",
+		"It is said that on {date}, {name} the {race} {class}, danced with the stars, their steps a melody that brought balance to the chaos of the cosmos.",
+		"The legend of {name}, a {race} {class}, was born on {date}, from the ashes of a world consumed by darkness, a light fierce enough to challenge the night.",
+		"On {date}, whispers of {name}'s arrival, the {race} {class}, stirred the ancient guardians from their slumber, heralding the dawn of a new era.",
+		"{name}, the {race} {class}, chose on {date} to walk the path less traveled, their journey a tapestry woven from the threads of countless destinies.",
+		"As the first light of {date} pierced the veil of night, {name}, a {race} {class}, set forth to claim their place among the constellations as a paragon of virtue and valor.",
+	}
+
+	// Generate a hash from the character's name to select a template
+	h := fnv.New32a()
+	h.Write([]byte(character.Text + character.Maxlvl))
+	hash := h.Sum32()
+	templateIndex := int(hash) % len(templates)
+
+	// Replace placeholders in the selected template
+	story := templates[templateIndex]
+	story = strings.Replace(story, "{name}", "<b>"+character.Shortname+"</b>", -1)
+	story = strings.Replace(story, "{class}", character.Totalclass, -1)
+	story = strings.Replace(story, "{race}", character.Race, -1)
+	story = strings.Replace(story, "{date}", character.Igstart, -1)
+
+	return story
+}
+
 func getGoogleSheetData() PageVariables {
 
 	data := getSheetData()
@@ -350,19 +401,15 @@ func getGoogleSheetData() PageVariables {
 	for _, row := range data.Characters {
 
 		if row.Irlend == todaysDate {
-			name := template.HTML(row.Shortname)
 			MyPageVariables.Content += "<h4>" + template.HTML(row.Text) + "</h4>"
 			MyPageVariables.Content += "<p class=\"story\">"
-			MyPageVariables.Content += name + " is a "
-			MyPageVariables.Content += template.HTML(row.Race) + " "
-			MyPageVariables.Content += template.HTML(row.Totalclass) + ". "
-			MyPageVariables.Content += "Rumour has it that they joined the adventure at " + template.HTML(row.Igstart) + ". "
+			MyPageVariables.Content += template.HTML(generateStory(row))
 			MyPageVariables.Content += "</p>"
 
 			extralife, _ := strconv.Atoi(row.Extralife)
 			if extralife > 0 {
 				MyPageVariables.Content += "<p class=\"story\">"
-				MyPageVariables.Content += "As an adventurer, " + name + " has been granted " + template.HTML(row.Extralife) + " extra lives. "
+				MyPageVariables.Content += "As an adventurer, " + template.HTML(row.Shortname) + " has been granted " + template.HTML(row.Extralife) + " extra lives. "
 				MyPageVariables.Content += "</p>"
 			}
 
