@@ -38,6 +38,13 @@ body {
   background-image: url("/images/page-background.jpg");
 }
 
+#logo {
+  width: 400px;
+  height: 50px;
+  border-bottom-left-radius: 10px;
+  border-top-left-radius: 10px;
+}
+
 h1, h2, h3, h4, h5 {
   margin-bottom: 0;
   font-family: MrJeeves;

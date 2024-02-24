@@ -431,7 +431,7 @@ function createChartScore(dataUrl, canvasId, chartTitle) {
           borderWidth: 1
         },
         {
-          label: 'Life Score',
+          label: 'Personal Score',
           data: characters.map(character => Number(character.lifescore)),
           backgroundColor: 'rgba(75, 192, 192, 0.2)',
           borderColor: 'rgba(75, 192, 192, 1)',
