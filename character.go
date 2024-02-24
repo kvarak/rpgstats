@@ -378,7 +378,13 @@ func generateStory(character Character) string {
 	story := templates[templateIndex]
 	story = strings.Replace(story, "{name}", "<b>"+character.Shortname+"</b>", -1)
 	story = strings.Replace(story, "{class}", character.Totalclass, -1)
-	story = strings.Replace(story, "{race}", character.Race, -1)
+	race := character.Race
+	if strings.Contains(race, "(") && strings.Contains(race, ")") {
+		startIndex := strings.Index(race, "(")
+		endIndex := strings.Index(race, ")")
+		race = race[startIndex+1 : endIndex]
+	}
+	story = strings.Replace(story, "{race}", race, -1)
 	story = strings.Replace(story, "{date}", character.Igstart, -1)
 
 	return story
