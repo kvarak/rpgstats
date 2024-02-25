@@ -102,6 +102,76 @@ function populateDropdowns(characters) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+  fetch('/data/allThePaths')
+  .then(response => response.json())
+  .then(data => {
+    populateDropdowns(data.adventures)
+    const container = document.getElementById("timelineigpaths");
+    const items = new vis.DataSet(
+      data.adventures.map((adventure, index) => {
+        return {
+          id: index + 1,
+          content: adventure.adventure,
+          start: adventure.igstart,
+          end: adventure.igend,
+          className: getColor(adventure.pathnr),
+          customInfo: `${adventure.shortIntro}<hr>${adventure.adventureBackground}<hr>${adventure.otherBackground}`
+        };
+      })
+    );
+    const options = {};
+    const timeline = new vis.Timeline(container, items, options);
+    // Listen for select events
+    timeline.on('select', function (properties) {
+      const selectedItem = items.get(properties.items[0]); // Get the first selected item
+      if (selectedItem) {
+          // Update the info box with information from the selected item
+          document.getElementById('infoBox').innerHTML = selectedItem.customInfo;
+      } else {
+          // If no item is selected, you can clear the info box or display a default message
+          document.getElementById('infoBox').innerHTML = 'Click on an item to see more information here.';
+      }
+    });
+  })
+  .catch(error => {
+      console.error('Error fetching adventure data:', error);
+  });
+
+  fetch('/data/allThePaths')
+  .then(response => response.json())
+  .then(data => {
+    populateDropdowns(data.adventures)
+    const container = document.getElementById("timelineirlpaths");
+    const items = new vis.DataSet(
+      data.adventures.map((adventure, index) => {
+        return {
+          id: index + 1,
+          content: adventure.adventure,
+          start: adventure.irlstart,
+          end: adventure.irlend,
+          className: getColor(adventure.pathnr),
+          customInfo: `${adventure.shortIntro}<hr>${adventure.adventureBackground}<hr>${adventure.otherBackground}`
+        };
+      })
+    );
+    const options = {};
+    const timeline = new vis.Timeline(container, items, options);
+    // Listen for select events
+    timeline.on('select', function (properties) {
+      const selectedItem = items.get(properties.items[0]); // Get the first selected item
+      if (selectedItem) {
+          // Update the info box with information from the selected item
+          document.getElementById('infoBox').innerHTML = selectedItem.customInfo;
+      } else {
+          // If no item is selected, you can clear the info box or display a default message
+          document.getElementById('infoBox').innerHTML = 'Click on an item to see more information here.';
+      }
+    });
+  })
+  .catch(error => {
+      console.error('Error fetching adventure data:', error);
+  });
+
   fetch('/data/allTheData')
   .then(response => response.json())
   .then(data => {
@@ -237,37 +307,41 @@ document.addEventListener('DOMContentLoaded', function () {
           createWheel('/data/allTheData', 'classWheelByPlayerExclude', 'Class Wheel (excl multi-class)', 'exclude');
         } else if (targetId === 'classWheelByPlayerInclude') {
           createWheel('/data/allTheData', 'classWheelByPlayerInclude', 'Class Wheel (incl multi-class)', 'include');
-        }
 
+        } else if (targetId === 'pathIgtime') {
+          createChartSum('/data/allThePaths', 'pathIgtime', 'Adventures and In-game time','path', ['advnr'], 'igtime', 'adventures');
+        } else if (targetId === 'pathIrltime') {
+          createChartSum('/data/allThePaths', 'pathIrltime', 'Adventures and IRL time','path', ['advnr'], 'irltime', 'adventures');
+        }
         chartToShow.style.display = 'block';
       }
     }
   });
 });
 
-function createChartSum(dataUrl, canvasId, chartTitle, labelKey, valueKeys, sumKey) {
+function createChartSum(dataUrl, canvasId, chartTitle, labelKey, valueKeys, sumKey, dataKey = 'characters') {
   fetch(dataUrl)
     .then(response => response.json())
     .then(data => {
-      const characters = data.characters;
+      const dataset = data[dataKey]; // Use dataKey to select the data set
       const ctx = document.getElementById(canvasId).getContext('2d');
       const labelValuePairs = {};
       const uniqueValues = new Set();
 
       // Initialize labelValuePairs with an object for each label
-      characters.forEach(character => {
-        const label = character[labelKey];
+      dataset.forEach(item => {
+        const label = item[labelKey];
         if (!labelValuePairs[label]) {
           labelValuePairs[label] = {};
         }
         valueKeys.forEach(valueKey => {
-          const value = character[valueKey];
+          const value = item[valueKey];
           if (value) {
             uniqueValues.add(value);
             if (!labelValuePairs[label][value]) {
               labelValuePairs[label][value] = 0;
             }
-            const increment = sumKey && character[sumKey] ? parseFloat(character[sumKey]) : 1;
+            const increment = sumKey && item[sumKey] ? parseFloat(item[sumKey]) : 1;
             labelValuePairs[label][value] += increment;
           }
         });
@@ -278,7 +352,7 @@ function createChartSum(dataUrl, canvasId, chartTitle, labelKey, valueKeys, sumK
 
       // Map each unique value to a dataset
       const datasets = uniqueValuesSorted.map((uniqueValue, index) => {
-        const colorIndex = index % backgroundColors.length; // Ensure this variable is accessible
+        const colorIndex = index % backgroundColors.length;
         return {
           label: uniqueValue,
           backgroundColor: backgroundColors[colorIndex],
@@ -319,29 +393,30 @@ function createChartSum(dataUrl, canvasId, chartTitle, labelKey, valueKeys, sumK
     });
 }
 
-function createChartCount(dataUrl, canvasId, chartTitle, labelKey, valueKeys) {
+function createChartCount(dataUrl, canvasId, chartTitle, labelKey, valueKeys, dataKey = 'characters') {
   fetch(dataUrl)
     .then(response => response.json())
     .then(data => {
-      const characters = data.characters;
+      const dataset = data[dataKey]; // Use the dataKey to select the dataset
       const ctx = document.getElementById(canvasId).getContext('2d');
       const labelValuePairs = {};
       const uniqueValues = new Set();
 
+      console.log(data);
+
       // Initialize labelValuePairs with an object for each label
-      characters.forEach(character => {
-        const label = character[labelKey];
+      dataset.forEach(item => {
+        const label = item[labelKey];
         if (!labelValuePairs[label]) {
           labelValuePairs[label] = {};
         }
         valueKeys.forEach(valueKey => {
-          const value = character[valueKey];
+          const value = item[valueKey];
           if (value) {
             uniqueValues.add(value);
             if (!labelValuePairs[label][value]) {
               labelValuePairs[label][value] = 0;
             }
-            // Increment the count for this value
             labelValuePairs[label][value]++;
           }
         });
@@ -350,9 +425,8 @@ function createChartCount(dataUrl, canvasId, chartTitle, labelKey, valueKeys) {
       const labelsSorted = Object.keys(labelValuePairs).sort();
       const uniqueValuesSorted = Array.from(uniqueValues).sort();
 
-      // Map each unique value to a dataset
       const datasets = uniqueValuesSorted.map((uniqueValue, index) => {
-        const colorIndex = index % backgroundColors.length; // Ensure this variable is accessible
+        const colorIndex = index % backgroundColors.length;
         return {
           label: uniqueValue,
           backgroundColor: backgroundColors[colorIndex],
@@ -366,7 +440,6 @@ function createChartCount(dataUrl, canvasId, chartTitle, labelKey, valueKeys) {
         chartInstances[canvasId].destroy();
       }
 
-      // Create the chart
       chartInstances[canvasId] = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -392,6 +465,7 @@ function createChartCount(dataUrl, canvasId, chartTitle, labelKey, valueKeys) {
       });
     });
 }
+
 
 function createChartAverageScore(dataUrl, canvasId, chartTitle, groupKey, averageKey) {
   fetch(dataUrl)

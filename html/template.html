@@ -56,6 +56,9 @@
     <div class="list-container">
       <ul id="plotList">
         <li data-target="currentAdventurers">Current Adventurers</li>
+        <h4>Paths</h4>
+        <li data-target="pathIgtime">Adventures and In-game time</li>
+        <li data-target="pathIrltime">Adventures and IRL time</li>
         <h4>Deaths</h4>
         <li data-target="charactercount">Deaths per Path (and Player)</li>
         <li data-target="deathsByPath">Deaths per Player (and Path)</li>
@@ -70,6 +73,8 @@
         <h4>Timelines</h4>
         <li data-target="timelineirl">IRL timeline</li>
         <li data-target="timelineig">In-game timeline</li>
+        <li data-target="timelineirlpaths">IRL adventure timeline</li>
+        <li data-target="timelineigpaths">In-game adventure timeline</li>
         <h4>Score</h4>
         <li data-target="pathScore">Path Survivability</li>
         <li data-target="classScore">Class Survivability</li>
@@ -89,12 +94,14 @@
       <h4>Make your own plot</h4>
       <select id="labelKeyDropdown"></select>
       <select id="valueKeyDropdown"></select><br/>
-      <button id="generateChartButton">Generate Plot</button>
+      <button id="generateChartButton">Generate Characters Plot</button><br/>
 
 
     </div>
     <div class="chart-container">
       <div class="chart" id="currentAdventurers" style="display: block;">{{.Content}}</div>
+      <canvas id="pathIgtime" width="700" height="600" class="chart" style="display: none;"></canvas>
+      <canvas id="pathIrltime" width="700" height="600" class="chart" style="display: none;"></canvas>
       <canvas id="charactercount" width="700" height="600" class="chart" style="display: none;"></canvas>
       <canvas id="deathsByPath" width="700" height="600" class="chart" style="display: none;"></canvas>
       <div id="killerCloud" width="700" height="600" class="chart" style="display: none;"></div>
@@ -129,6 +136,8 @@
       <canvas id="levelsLivedPath" width="700" height="600" class="chart" style="display: none;"></canvas>
       <div id="timelineirl" class="chart" style="display: none;"></div>
       <div id="timelineig" class="chart" style="display: none;"></div>
+      <div id="timelineirlpaths" class="chart" style="display: none;"></div>
+      <div id="timelineigpaths" class="chart" style="display: none;"></div>
       <canvas id="myChart" width="700" height="600" class="chart" style="display: none;"></canvas>
       <canvas id="characterScore" width="700" height="1800" class="chart" style="display: none;"></canvas>
       <canvas id="characterTotalScore" width="700" height="1800" class="chart" style="display: none;"></canvas>

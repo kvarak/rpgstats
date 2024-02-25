@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
+	"time"
 
 	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
@@ -14,7 +17,7 @@ type AdventureCollection struct {
 }
 
 type Adventure struct {
-	Index               string `json:"index"`
+	Pathnr              string `json:"pathnr"`
 	Path                string `json:"path"`
 	Advnr               string `json:"advnr"`
 	Adventure           string `json:"adventure"`
@@ -25,10 +28,29 @@ type Adventure struct {
 	StartLevel          string `json:"startLevel"`
 	EndLevel            string `json:"endLevel"`
 	FinalBoss           string `json:"finalBoss"`
-	PercentCompleted    string `json:"percentCompleted"`
+	PercentCompleted    string `json:"percentCompl"`
 	ShortIntro          string `json:"shortIntro"`
-	AdventureBackground string `json:"adventureBackground"`
-	OtherBackground     string `json:"otherBackground"`
+	AdventureBackground string `json:"advBkgrnd"`
+	OtherBackground     string `json:"otherBckgrnd"`
+	Igtime              string `json:"igtime"`
+	Irltime             string `json:"irltime"`
+}
+
+// Function that returns the days between two dates in "YYYY-MM-DD" format
+func daysBetweenDates(startDate, endDate string) int {
+	const dateFormat = "2006-01-02" // Go's reference date format
+	start, err := time.Parse(dateFormat, startDate)
+	if err != nil {
+		return 0
+	}
+	end, err := time.Parse(dateFormat, endDate)
+	if err != nil {
+		return 0
+	}
+
+	// Calculate difference and convert to whole days
+	days := end.Sub(start).Hours() / 24
+	return int(days)
 }
 
 // Function that takes the spreadsheet values and creates a list of Adventures
@@ -62,8 +84,8 @@ func getAdventureSheetData() AdventureCollection {
 
 		// Construct the Adventure struct safely
 		adventure := Adventure{
-			Index:               safeGetString(0),
-			Path:                safeGetString(1),
+			Pathnr:              safeGetString(0),
+			Path:                getScenarioName(safeGetString(0)),
 			Advnr:               safeGetString(2),
 			Adventure:           safeGetString(3),
 			Igstart:             safeGetString(4),
@@ -77,6 +99,8 @@ func getAdventureSheetData() AdventureCollection {
 			ShortIntro:          safeGetString(12),
 			AdventureBackground: safeGetString(13),
 			OtherBackground:     safeGetString(14),
+			Igtime:              fmt.Sprint(daysBetweenDates(safeGetString(4), safeGetString(5))),
+			Irltime:             fmt.Sprint(daysBetweenDates(safeGetString(6), safeGetString(7))),
 		}
 		adventures = append(adventures, adventure)
 	}
@@ -86,16 +110,16 @@ func getAdventureSheetData() AdventureCollection {
 	}
 }
 
-// // --------------------------------------------------------
-// // HANDLE ADVENTURES
-// // --------------------------------------------------------
+// --------------------------------------------------------
+// HANDLE ADVENTURES
+// --------------------------------------------------------
 
-// func handleTimeAdventures(w http.ResponseWriter, r *http.Request) {
-// 	adventures := getAdventureSheetData()
-// 	keySelector := func(char Adventure) string { return char.Path }
-// 	valueSelector := func(char Adventure) string { return char.LevelsLived }
-// 	categoryCounts := processAdventureData(adventures, keySelector, valueSelector)
+func handleTimeAdventures(w http.ResponseWriter, r *http.Request) {
+	adventures := getAdventureSheetData()
+	// keySelector := func(char Adventure) string { return char.Path }
+	// valueSelector := func(char Adventure) string { return char.LevelsLived }
+	// categoryCounts := processAdventureData(adventures, keySelector, valueSelector)
 
-// 	w.Header().Set("Content-Type", "application/json")
-// 	json.NewEncoder(w).Encode(categoryCounts)
-// }
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(adventures)
+}

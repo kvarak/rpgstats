@@ -35,6 +35,7 @@ func main() {
 	fsCss := http.FileServer(http.Dir("css"))
 	http.Handle("/css/", http.StripPrefix("/css/", fsCss))
 
+	http.HandleFunc("/data/allThePaths", handleTimeAdventures)
 	http.HandleFunc("/data/allTheData", handleAllTheData)
 	http.ListenAndServe(":8089", nil)
 }
