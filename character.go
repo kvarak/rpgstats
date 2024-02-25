@@ -6,6 +6,8 @@ import (
 	"hash/fnv"
 	"html/template"
 	"log"
+	"math"
+	"math/rand"
 	"strconv"
 	"strings"
 	"time"
@@ -25,50 +27,54 @@ type CharacterCollection struct {
 }
 
 type Character struct {
-	Text           string `json:"name"`
-	Shortname      string `json:"shortname"`
-	Irlstart       string `json:"irlstart"`
-	Irlend         string `json:"irlend"`
-	Irltime        string `json:"irltime"`
-	Igstart        string `json:"igstart"`
-	Igend          string `json:"igend"`
-	Igtime         string `json:"igtime"`
-	Race           string `json:"race"`
-	Class1         string `json:"class1"`
-	Spec1          string `json:"spec1"`
-	Class2         string `json:"class2"`
-	Spec2          string `json:"spec2"`
-	Totalclass     string `json:"totalclass"`
-	Amalgam        string `json:"amalgam"`
-	Classtype      string `json:"classtype"`
-	Killer_old     string `json:"killer_old"`
-	Killercr       string `json:"killercr"`
-	Killer         string `json:"killer"`
-	Path           string `json:"path"`
-	PathNumber     string `json:"pathnumber"`
-	Category       string `json:"player"`
-	Died           string `json:"died"`
-	Extralife      string `json:"extralife"`
-	Ressadv        string `json:"ressadv"`
-	Resskiller     string `json:"resskiller"`
-	Crlvldiff      string `json:"crlvldiff"`
-	Startlevel     string `json:"startlevel"`
-	Description    string `json:"description"`
-	Maxlvl         string `json:"maxlvl"`
-	Maxlvl2        string `json:"maxlvl2"`
-	Event          string `json:"event"`
-	LevelsLived    string `json:"levelslived"`
-	Info           string `json:"info"`
-	Deaths         string `json:"deaths"`
-	Lifescore      string `json:"lifescore"`
-	Classscore     string `json:"classscore"`
-	Classaverage   string `json:"classaverage"`
-	Pathscore      string `json:"pathscore"`
-	Pathaverage    string `json:"pathaverage"`
-	Playerscore    string `json:"playerscore"`
-	Playeraverage  string `json:"playeraverage"`
-	Characterscore string `json:"characterscore"`
-	Totalscore     string `json:"totalscore"`
+	Text            string `json:"name"`
+	Shortname       string `json:"shortname"`
+	Irlstart        string `json:"irlstart"`
+	Irlend          string `json:"irlend"`
+	Irltime         string `json:"irltime"`
+	Igstart         string `json:"igstart"`
+	Igend           string `json:"igend"`
+	Igtime          string `json:"igtime"`
+	Race            string `json:"race"`
+	Class1          string `json:"class1"`
+	Spec1           string `json:"spec1"`
+	Class2          string `json:"class2"`
+	Spec2           string `json:"spec2"`
+	Totalclass      string `json:"totalclass"`
+	Amalgam         string `json:"amalgam"`
+	Classtype       string `json:"classtype"`
+	Killer_old      string `json:"killer_old"`
+	Killercr        string `json:"killercr"`
+	Killer          string `json:"killer"`
+	Path            string `json:"path"`
+	PathNumber      string `json:"pathnumber"`
+	Category        string `json:"player"`
+	Died            string `json:"died"`
+	Extralife       string `json:"extralife"`
+	Ressadv         string `json:"ressadv"`
+	Resskiller      string `json:"resskiller"`
+	Crlvldiff       string `json:"crlvldiff"`
+	Startlevel      string `json:"startlevel"`
+	Description     string `json:"description"`
+	Maxlvl          string `json:"maxlvl"`
+	Maxlvl2         string `json:"maxlvl2"`
+	Event           string `json:"event"`
+	LevelsLived     string `json:"levelslived"`
+	Info            string `json:"info"`
+	Deaths          string `json:"deaths"`
+	Lifescore       string `json:"lifescore"`
+	Classscore      string `json:"classscore"`
+	Classaverage    string `json:"classaverage"`
+	Pathscore       string `json:"pathscore"`
+	Pathaverage     string `json:"pathaverage"`
+	Playerscore     string `json:"playerscore"`
+	Playeraverage   string `json:"playeraverage"`
+	Characterscore  string `json:"characterscore"`
+	Comboavglvl     string `json:"comboavglvl"`
+	Comboavgdays    string `json:"comboavgdays"`
+	Comboavgirldays string `json:"comboavgirldays"`
+	Comboavgkill    string `json:"comboavgkill"`
+	Totalscore      string `json:"totalscore"`
 }
 
 func calculateScore(character Character) string {
@@ -329,44 +335,64 @@ func getSheetData() CharacterCollection {
 		characters[i].Characterscore = strconv.Itoa(class + path + life)
 	}
 
+	//	Comboavglvl    string `json:"comboavglvl"`
+	//	Comboavgdays   string `json:"comboavgdays"`
+	//	Comboavgkill   string `json:"comboavgkill"`
+
+	today := time.Now().Format("2006-01-02")
+	comboTotalLevels := 0.0
+	comboTotalDays := 0.0
+	comboTotalIrlDays := 0.0
+	comboTotalKill := ""
+	comboCounts := 0.0
+
+	for i, current := range characters {
+		comboTotalLevels = 0.0
+		comboTotalDays = 0.0
+		comboTotalIrlDays = 0.0
+		comboTotalKill = ""
+		comboCounts = 0.0
+		if current.Irlend == today {
+			for _, character := range characters {
+				if character.Totalclass == current.Totalclass || character.Category == current.Category {
+					levelsLived, _ := strconv.Atoi(character.LevelsLived)
+					igtime, _ := strconv.Atoi(character.Igtime)
+					irltime, _ := strconv.Atoi(character.Irltime)
+					killer := character.Killer
+					killer_old := character.Killer_old
+					comboTotalLevels += float64(levelsLived)
+					comboTotalDays += float64(igtime)
+					comboTotalIrlDays += float64(irltime)
+					comboCounts++
+					if character.Died == "y" {
+						// only add , if there is already a killer
+						if comboTotalKill == "" {
+							comboTotalKill += killer
+						} else {
+							comboTotalKill += ", " + killer
+						}
+						if comboTotalKill == "" {
+							comboTotalKill += killer_old
+						} else {
+							comboTotalKill += ", " + killer_old
+						}
+					}
+				}
+			}
+			characters[i].Comboavglvl = strconv.FormatFloat(comboTotalLevels/comboCounts, 'f', 2, 64)
+			characters[i].Comboavgdays = strconv.FormatFloat(comboTotalDays/comboCounts, 'f', 2, 64)
+			characters[i].Comboavgirldays = strconv.FormatFloat(comboTotalIrlDays/comboCounts, 'f', 2, 64)
+			characters[i].Comboavgkill = comboTotalKill
+		}
+	}
+
 	return CharacterCollection{
 		Characters: characters,
 	}
 }
 
 func generateStory(character Character) string {
-	templates := []string{
-		"From {date}, tales of {name}, a {race} {class}, spread like wildfire, a testament to their indomitable spirit and unyielding resolve.",
-		"On {date}, {name} the {race} {class} set sail towards destiny, their eyes set on horizons that many deemed unreachable.",
-		"Starting on {date}, {name}'s name became synonymous with courage as the {race} {class} ventured into the unknown, a beacon of hope in dark times.",
-		"Armed with ancient knowledge and the heart of a warrior, {name}, the {race} {class}, embarked on their fabled journey on {date}.",
-		"As the stars aligned on {date}, so did the fate of {name}, the {race} {class}, whose name would become etched in the eternal chronicles of time.",
-		"The saga of {name} began on {date}, a {race} {class} whose bravery transcended the tales of old, venturing into realms where angels dare not tread.",
-		"On {date}, {name} the {race} {class}, took an oath beneath the ancient oaks, a vow that would steer them through battles unseen and foes unknown.",
-		"A whisper on the wind on {date} spoke of {name}, a {race} {class}, chosen by destiny to walk a path lined with shadow and light.",
-		"None could have predicted on {date}, how {name}, a simple {race} {class}, would shake the very foundations of the world with their deeds.",
-		"It was on {date} that {name}, the {race} {class}, emerged from the mists of legend, a force to be reckoned with, in pursuit of a destiny foretold.",
-		"With a heart as fierce as dragons and a will unbreakable, {name}, the {race} {class}, embarked on their legendary quest on {date}, a journey that would echo through ages.",
-		"On {date}, {name} the {race} {class}, cast aside all doubt, embracing a destiny that would intertwine their name with the essence of adventure itself.",
-		"The legacy of {name}, a {race} {class}, was forged on {date}, amidst the flames of destiny, to become a beacon for those who dare to dream.",
-		"From the tranquil shores of {date}, {name}, a {race} {class}, set sail towards the tempest of the unknown, their story a canvas for the ages.",
-		"Every tavern's tale and every child's bedtime story held the feats of {name}, the {race} {class}, in awe. It's said that fate's wheel began to turn on {date}.",
-		"In the heart of the dense forests, whispers tell of {name}, the {race} {class}. Their journey is said to have begun on {date}, seeking what lies beyond the known paths.",
-		"Legends echo through the halls of time about {name}, a {class} of {race} origin, whose adventures embarked from the ancient ruins on {date}.",
-		"Fate's hand guided {name}, the {race} {class}, from a humble beginning on {date} to the cusp of reshaping history itself.",
-		"Under the silver moon on {date}, {name} the {race} {class} pledged to unravel the mysteries that bind the realms.",
-		"It is said that on {date}, the winds of fortune whispered to {name}, a {class} of {race}, propelling them on a quest that would enter the annals of legend.",
-		"Beneath the gaze of the crimson moon on {date}, {name} the {race} {class}, embarked on a journey that would etch their name across the heavens and into the annals of history.",
-		"On {date}, in the shadow of ancient ruins, {name}, a {race} {class}, uncovered a truth so powerful it threatened to unravel the very fabric of existence.",
-		"{name}, the {race} {class}, found their destiny intertwined with the fate of the world on {date}, when a prophecy whispered from the lips of the dying sun came to pass.",
-		"The echoes of {name}'s valorous deeds, a {race} {class}, begun on {date}, still resound through the hallowed halls where heroes are remembered.",
-		"On {date}, {name}, a {race} {class}, stood at the crossroads of fate, their decision a beacon that would guide the lost through the darkness.",
-		"It is said that on {date}, {name} the {race} {class}, danced with the stars, their steps a melody that brought balance to the chaos of the cosmos.",
-		"The legend of {name}, a {race} {class}, was born on {date}, from the ashes of a world consumed by darkness, a light fierce enough to challenge the night.",
-		"On {date}, whispers of {name}'s arrival, the {race} {class}, stirred the ancient guardians from their slumber, heralding the dawn of a new era.",
-		"{name}, the {race} {class}, chose on {date} to walk the path less traveled, their journey a tapestry woven from the threads of countless destinies.",
-		"As the first light of {date} pierced the veil of night, {name}, a {race} {class}, set forth to claim their place among the constellations as a paragon of virtue and valor.",
-	}
+	templates := storyStart
 
 	// Generate a hash from the character's name to select a template
 	h := fnv.New32a()
@@ -390,6 +416,285 @@ func generateStory(character Character) string {
 	return story
 }
 
+func addDaysToDate(dateStr, daysStr string) string {
+	date, _ := time.Parse("2006-01-02", dateStr)
+	daysFloat, _ := strconv.ParseFloat(daysStr, 64)
+	days := int(daysFloat)
+	newDate := date.AddDate(0, 0, days)
+	return newDate.Format("2006-01-02")
+}
+
+func GenerateLevelOutcome(currentLvlStr, willDieStr, uniqueId string) string {
+	currentLvl, err1 := strconv.Atoi(currentLvlStr)
+	willDie, err2 := strconv.ParseFloat(willDieStr, 64)
+	if err1 != nil || err2 != nil {
+		return "Invalid input."
+	}
+
+	diff := math.Abs(float64(currentLvl) - willDie)
+
+	// Use a hash of the uniqueId to seed the random number generator
+	hash := fnv.New32a()
+	_, err := hash.Write([]byte(uniqueId))
+	if err != nil {
+		return "Error generating hash."
+	}
+	seed := int64(hash.Sum32())
+	rand.Seed(seed)
+
+	if float64(currentLvl) < willDie {
+		messagesLiveLonger := []string{
+			fmt.Sprintf("seems destined for great things, with at least %d more levels to conquer.", int(math.Ceil(diff))),
+			fmt.Sprintf("has a bright future ahead, promising %d more levels of adventure.", int(math.Ceil(diff))),
+			fmt.Sprintf("is on a path of glory, with %d levels yet to be explored.", int(math.Ceil(diff))),
+			fmt.Sprintf("holds the promise of enduring %d more levels, according to the stars.", int(math.Ceil(diff))),
+			fmt.Sprintf("is blessed by fate, with a journey extending %d levels further.", int(math.Ceil(diff))),
+			fmt.Sprintf("carries an aura of resilience, likely surviving %d additional levels.", int(math.Ceil(diff))),
+			fmt.Sprintf("is shielded by unseen forces for another %d levels at least.", int(math.Ceil(diff))),
+			fmt.Sprintf("has tales unwritten for %d more levels, as foretold by the ancients.", int(math.Ceil(diff))),
+			fmt.Sprintf("is whispered in prophecies to stride across %d levels more.", int(math.Ceil(diff))),
+			fmt.Sprintf("has a destiny that spans %d additional levels, so say the oracles.", int(math.Ceil(diff))),
+			fmt.Sprintf("is marked by the gods to journey through %d more levels.", int(math.Ceil(diff))),
+			fmt.Sprintf("will tread %d more levels, untouched by shadow.", int(math.Ceil(diff))),
+			fmt.Sprintf("is fated to rise above challenges for at least %d more levels.", int(math.Ceil(diff))),
+			fmt.Sprintf("will outlast %d more levels, as the winds of fortune suggest.", int(math.Ceil(diff))),
+			fmt.Sprintf("has %d levels of untold stories waiting to unfold.", int(math.Ceil(diff))),
+			fmt.Sprintf("is surrounded by a light that promises %d more levels of life.", int(math.Ceil(diff))),
+			fmt.Sprintf("will dance through %d more levels, guided by luck.", int(math.Ceil(diff))),
+			fmt.Sprintf("is foreseen to have %d more levels of laughter and joy.", int(math.Ceil(diff))),
+			fmt.Sprintf("will continue to weave tales of heroism for %d more levels.", int(math.Ceil(diff))),
+			fmt.Sprintf("is destined to leave footprints across %d additional levels.", int(math.Ceil(diff))),
+		}
+		return messagesLiveLonger[rand.Intn(len(messagesLiveLonger))]
+	} else {
+		messagesLivedLonger := []string{
+			fmt.Sprintf("has cheated fate, living %d levels beyond the foretold end.", int(math.Floor(diff))),
+			fmt.Sprintf("carries the whispers of survival, outlasting %d levels against all odds.", int(math.Floor(diff))),
+			fmt.Sprintf("has defied the grim predictions by %d levels, and still stands strong.", int(math.Floor(diff))),
+			fmt.Sprintf("is a living legend, having surpassed expected demise by %d levels.", int(math.Floor(diff))),
+			fmt.Sprintf("basks in borrowed time, %d levels past the shadow of death.", int(math.Floor(diff))),
+			fmt.Sprintf("walks with the ghosts of %d levels past, yet breathes life.", int(math.Floor(diff))),
+			fmt.Sprintf("has seen %d levels more than destiny intended.", int(math.Floor(diff))),
+			fmt.Sprintf("rides the winds of chance, %d levels past the destined fall.", int(math.Floor(diff))),
+			fmt.Sprintf("wears a cloak of defiance, surviving %d levels past doom.", int(math.Floor(diff))),
+			fmt.Sprintf("is a beacon of hope, shining %d levels past darkness.", int(math.Floor(diff))),
+			fmt.Sprintf("is the master of their fate, living %d levels beyond the written end.", int(math.Floor(diff))),
+			fmt.Sprintf("stands tall, %d levels beyond the whisper of death.", int(math.Floor(diff))),
+			fmt.Sprintf("holds stories of %d levels that were never meant to be.", int(math.Floor(diff))),
+			fmt.Sprintf("is the anomaly in the tapestry of fate, %d levels beyond their time.", int(math.Floor(diff))),
+			fmt.Sprintf("is the unexpected chapter, continuing %d levels past the finale.", int(math.Floor(diff))),
+			fmt.Sprintf("has outpaced destiny by %d levels, forging a new path.", int(math.Floor(diff))),
+			fmt.Sprintf("is a tale of resilience, %d levels beyond the end.", int(math.Floor(diff))),
+			fmt.Sprintf("lives as if borrowed time is infinite, %d levels beyond reckoning.", int(math.Floor(diff))),
+			fmt.Sprintf("has unwritten %d levels of history, beyond what was foreseen.", int(math.Floor(diff))),
+			fmt.Sprintf("is the unexpected hero, surviving %d levels past prophecy.", int(math.Floor(diff))),
+		}
+		return messagesLivedLonger[rand.Intn(len(messagesLivedLonger))]
+	}
+}
+
+func GenerateMessageBasedOnDates(currentDate, dieDate, hash string) string {
+	// Parse the input dates
+	layout := "2006-01-02"
+	current, err := time.Parse(layout, currentDate)
+	if err != nil {
+		fmt.Println("Error parsing currentDate:", err)
+		return ""
+	}
+	die, err := time.Parse(layout, dieDate)
+	if err != nil {
+		fmt.Println("Error parsing dieDate:", err)
+		return ""
+	}
+
+	// Calculate the difference in days
+	diff := int(die.Sub(current).Hours() / 24)
+
+	// Seed the random generator with the hash for deterministic output
+	seed := int64(0)
+	for _, c := range hash {
+		seed = (seed*31 + int64(c)) % 1e9
+	}
+	rand.Seed(seed)
+
+	// Message templates
+	if diff > 0 {
+		templates := []string{
+			fmt.Sprintf("Legend has it that the final day approaches, marked on the calendar as %s.", dieDate),
+			fmt.Sprintf("Whispers in the wind speak of a fateful day drawing near: %s.", dieDate),
+			fmt.Sprintf("Legends whisper of %s, a day shrouded in destiny, awaiting to unfold.", dieDate),
+			fmt.Sprintf("Fate's loom weaves a tale of %s, where destiny's crossroads shall meet.", dieDate),
+			fmt.Sprintf("A prophecy carved in the stars speaks of %s, marking a pivotal turn in the saga.", dieDate),
+			fmt.Sprintf("Ancient scrolls foretell %s as a day of reckoning, where fate shall be sealed.", dieDate),
+			fmt.Sprintf("Seers have long envisioned %s, where destiny's threads will intertwine.", dieDate),
+			fmt.Sprintf("A harbinger of destiny, %s looms over the horizon, shrouded in mystery.", dieDate),
+			fmt.Sprintf("The oracle's vision reveals %s as a crucial juncture in the fabric of time.", dieDate),
+			fmt.Sprintf("Tales of yore speak of %s, a day foreseen to change the course of history.", dieDate),
+			fmt.Sprintf("A celestial alignment on %s portends a momentous event, written in the cosmos.", dieDate),
+			fmt.Sprintf("The echo of fate resounds towards %s, a day that will decide all.", dieDate),
+			fmt.Sprintf("On %s, the scales of destiny will tip, marking a new chapter in the annals of time.", dieDate),
+			fmt.Sprintf("The shadow of %s casts forth, promising a turning point of cosmic significance.", dieDate),
+			fmt.Sprintf("Eldritch powers have long marked %s as a day of unparalleled importance.", dieDate),
+			fmt.Sprintf("The chorus of the ancients crescendos towards %s, a day of fated encounters.", dieDate),
+			fmt.Sprintf("A cosmic confluence on %s signals a convergence of fateful paths.", dieDate),
+			fmt.Sprintf("The veil of time thins as %s approaches, a day foretold to bear witness to destiny.", dieDate),
+			fmt.Sprintf("A tempest of fate brews towards %s, promising upheaval and rebirth.", dieDate),
+			fmt.Sprintf("The stars align in anticipation of %s, a day that will illuminate the fates.", dieDate),
+			fmt.Sprintf("As the dawn of %s nears, destiny's hand readies to pen its indelible mark.", dieDate),
+		}
+		return templates[rand.Intn(len(templates))]
+	} else {
+		diff = -diff // Make positive since dieDate is in the past
+		templates := []string{
+			fmt.Sprintf("Against all odds, the hero has lived %d days beyond the foretold end date.", diff),
+			fmt.Sprintf("Fate's design was defied, with %d extra days already lived beyond %s.", diff, dieDate),
+			fmt.Sprintf("Beyond %s, they tread in borrowed time, each day a gift from the fates.", dieDate),
+			fmt.Sprintf("Having eclipsed %s, their story weaves on, defying the edicts of destiny.", dieDate),
+			fmt.Sprintf("The shadow of %s lies behind, as they step into uncharted epochs, masters of their fate.", dieDate),
+			fmt.Sprintf("Surpassing %s, they now walk a path not charted by stars but by will.", dieDate),
+			fmt.Sprintf("The date %s now a tale of the past, as they carve a future untold by oracles.", dieDate),
+			fmt.Sprintf("Each day post %s is a testament to their defiance against the preordained.", dieDate),
+			fmt.Sprintf("With %s in the annals of history, their journey continues, unwritten and undefined.", dieDate),
+			fmt.Sprintf("Beyond the bounds of %s, they forge a legacy beyond the confines of fate.", dieDate),
+			fmt.Sprintf("Past %s, they stand, a beacon of resilience in the face of destiny's decree.", dieDate),
+			fmt.Sprintf("Having outlasted %s, their saga unfolds in realms unbound by prophecy.", dieDate),
+			fmt.Sprintf("The echoes of %s fade into legend, as their steps forge new myths.", dieDate),
+			fmt.Sprintf("Beyond the foretold end of %s, they emerge, undiminished and unconquered.", dieDate),
+			fmt.Sprintf("With %s receding into the tapestry of time, their story enters unscripted territories.", dieDate),
+			fmt.Sprintf("Outliving %s, they redefine the contours of fate, etching a path of their own design.", dieDate),
+			fmt.Sprintf("The milestone of %s now surpassed, they journey beyond the realm of prophecy.", dieDate),
+			fmt.Sprintf("Having transcended %s, their tale evolves, unbounded by the chains of destiny.", dieDate),
+			fmt.Sprintf("Past the threshold of %s, they venture into a future unfettered by foresight.", dieDate),
+			fmt.Sprintf("The legacy of %s now a relic, as they pioneer into epochs anew.", dieDate),
+			fmt.Sprintf("With %s but a memory, they stride into an era not foreseen, shaping destiny anew.", dieDate),
+		}
+		return templates[rand.Intn(len(templates))]
+	}
+}
+
+func GenerateDeathProphecy(cause, hash string) string {
+	seed := int64(0)
+	for _, c := range hash {
+		seed = (seed*31 + int64(c)) % 1e9
+	}
+	rand.Seed(seed)
+
+	// Get a random prophecy from the selected cause if it exists
+	if prophecies, ok := deathProphecies[cause]; ok {
+		return prophecies[rand.Intn(len(prophecies))]
+	}
+
+	// If the cause is not found, return a random message from defaultProphecies
+	return defaultProphecies[rand.Intn(len(defaultProphecies))]
+}
+
+func mostCommonItemAll(input string) string {
+	// Check if the input is empty or contains only "End boss" after trimming spaces
+	if input = strings.TrimSpace(input); input == "" || strings.ReplaceAll(input, "End boss,", "") == "" {
+		return "" // Return empty if input is empty or only contains "End boss"
+	}
+
+	// Replace "End boss" with an empty string and trim spaces around commas
+	input = strings.Replace(input, "End boss", "", -1)
+	input = strings.Replace(input, ", ,", ", ", -1)
+
+	// Split the cleaned input string into items
+	items := strings.Split(input, ", ")
+	itemCount := make(map[string]int)
+
+	// Count occurrences of each non-empty item
+	for _, item := range items {
+		item = strings.TrimSpace(item) // Trim spaces to avoid counting empty items
+		if item != "" {
+			itemCount[item]++
+		}
+	}
+
+	// Find the max count
+	var maxCount int
+	for _, count := range itemCount {
+		if count > maxCount {
+			maxCount = count
+		}
+	}
+
+	// Collect items that have the max count
+	var candidates []string
+	for item, count := range itemCount {
+		if count == maxCount {
+			candidates = append(candidates, item)
+		}
+	}
+
+	// Returns all candidates in a string with the format "item1, item2 or item3"
+	if len(candidates) == 1 {
+		return candidates[0]
+	}
+	if len(candidates) == 2 {
+		return candidates[0] + " or " + candidates[1]
+	}
+	if len(candidates) > 2 {
+		return strings.Join(candidates[:len(candidates)-1], ", ") + " or " + candidates[len(candidates)-1]
+	}
+	return "<unknown>"
+}
+
+func mostCommonItem(input, hash string) string {
+	// Check if the input is empty or contains only "End boss" after trimming spaces
+	if input = strings.TrimSpace(input); input == "" || strings.ReplaceAll(input, "End boss,", "") == "" {
+		return "" // Return empty if input is empty or only contains "End boss"
+	}
+
+	// Replace "End boss" with an empty string and trim spaces around commas
+	input = strings.Replace(input, "End boss", "", -1)
+	input = strings.Replace(input, ", ,", ", ", -1)
+
+	// Split the cleaned input string into items
+	items := strings.Split(input, ", ")
+	itemCount := make(map[string]int)
+
+	// Count occurrences of each non-empty item
+	for _, item := range items {
+		item = strings.TrimSpace(item) // Trim spaces to avoid counting empty items
+		if item != "" {
+			itemCount[item]++
+		}
+	}
+
+	// Find the max count
+	var maxCount int
+	for _, count := range itemCount {
+		if count > maxCount {
+			maxCount = count
+		}
+	}
+
+	// Collect items that have the max count
+	var candidates []string
+	for item, count := range itemCount {
+		if count == maxCount {
+			candidates = append(candidates, item)
+		}
+	}
+
+	if len(candidates) == 0 {
+		return "<unknown>"
+	}
+
+	// Use hash string to deterministically select a candidate
+	hashValue := hashStringToInt(hash)
+	selectedIndex := hashValue % len(candidates)
+
+	return candidates[selectedIndex]
+}
+
+// hashStringToInt converts a string to an int using FNV hashing.
+func hashStringToInt(s string) int {
+	h := fnv.New32a()
+	h.Write([]byte(s))
+	return int(h.Sum32())
+}
+
 func getGoogleSheetData() PageVariables {
 
 	data := getSheetData()
@@ -403,13 +708,17 @@ func getGoogleSheetData() PageVariables {
 	todaysDate := time.Now().Format("2006-01-02")
 
 	MyPageVariables.Content += "<h1>Our current adventurers</h1>"
-
+	deathDate := ""
 	for _, row := range data.Characters {
 
 		if row.Irlend == todaysDate {
-			MyPageVariables.Content += "<h4>" + template.HTML(row.Text) + "</h4>"
+			MyPageVariables.Content += "<h3>" + template.HTML(row.Text) + "</h3>"
 			MyPageVariables.Content += "<p class=\"story\">"
-			MyPageVariables.Content += template.HTML(generateStory(row))
+			MyPageVariables.Content += template.HTML(generateStory(row)) + " "
+			deathDate = addDaysToDate(row.Igstart, row.Comboavgdays)
+			MyPageVariables.Content += template.HTML(GenerateMessageBasedOnDates(row.Igstart, deathDate, row.Text+row.Maxlvl)) + " "
+			MyPageVariables.Content += template.HTML(row.Text) + " " + template.HTML(GenerateLevelOutcome(row.LevelsLived, row.Comboavglvl, row.Shortname+row.Maxlvl)) + " "
+			MyPageVariables.Content += template.HTML(GenerateDeathProphecy(mostCommonItem(row.Comboavgkill, row.Text+row.Maxlvl), row.Text+row.Maxlvl)) + " "
 			MyPageVariables.Content += "</p>"
 
 			extralife, _ := strconv.Atoi(row.Extralife)
@@ -419,17 +728,24 @@ func getGoogleSheetData() PageVariables {
 				MyPageVariables.Content += "</p>"
 			}
 
-			story := row.Description
-			story = strings.ReplaceAll(story, "<<", "<img id=\"imageleft\" src=\"")
-			story = strings.ReplaceAll(story, ">>", "\" onclick=\"showImage(this.src)\">")
-			MyPageVariables.Content += "<p class=\"story\">" + template.HTML(story) + "</p>"
-
 			MyPageVariables.Content += "<p class=\"story\"><i>IRL: Started at "
 			MyPageVariables.Content += template.HTML(row.Irlstart) + "; "
-			MyPageVariables.Content += template.HTML(row.Irltime) + " days ago."
+			MyPageVariables.Content += template.HTML(row.Irltime) + " days ago.<br/>"
+			MyPageVariables.Content += template.HTML(addDaysToDate(row.Irlstart, row.Comboavgirldays)) + " is the statistical last day. "
+			MyPageVariables.Content += " Killed by " + template.HTML(mostCommonItemAll(row.Comboavgkill)) + ", "
+			MyPageVariables.Content += " at level " + template.HTML(row.Comboavglvl) + ".<br/>"
+			MyPageVariables.Content += " This is based on the average of all adventurers with the same class or player. "
 			MyPageVariables.Content += "</i></p>"
+
+			story := row.Description
+			if story != "" {
+				MyPageVariables.Content += "<h5>Background</h5>"
+				story = strings.ReplaceAll(story, "<<", "<img id=\"imageleft\" src=\"")
+				story = strings.ReplaceAll(story, ">>", "\" onclick=\"showImage(this.src)\">")
+				MyPageVariables.Content += "<p class=\"story\">" + template.HTML(story) + "</p>"
+			}
+
 		}
 	}
-	MyPageVariables.Content += "</table>"
 	return MyPageVariables
 }
