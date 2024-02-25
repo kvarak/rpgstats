@@ -142,62 +142,26 @@
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      createChartSum(
-        '/data/allTheData', 'charactercount', 'Deaths per Path (and Player)',
-        'path', ['player'], 'deaths'
-      );
-      createChartSum(
-        '/data/allTheData', 'deathsByPath', 'Deaths per Player (and Path)',
-        'player', ['path'], 'deaths'
-      );
-      createChartCount(
-        '/data/allTheData', 'classesByPlayer', 'Classes per Player (excl multi-class)',
-        'player', ['class1']
-      );
-      createChartCount(
-        '/data/allTheData', 'classesByPlayerMulti', 'Classes per Player (incl multi-class)',
-        'player', ['class1','class2']
-      );
-      createChartCount(
-        '/data/allTheData', 'levelsLived', 'Levels Lived (Player)',
-        'levelslived', ['player']
-      );
-      createChartCount(
-        '/data/allTheData', 'levelsLivedPath', 'Levels Lived (Path)',
-        'levelslived', ['path']
-      );
+    // document.addEventListener('DOMContentLoaded', function () {
+    //   createChartSum('/data/allTheData', 'charactercount', 'Deaths per Path (and Player)','path', ['player'], 'deaths');
+    //   createChartSum('/data/allTheData', 'deathsByPath', 'Deaths per Player (and Path)','player', ['path'], 'deaths');
+    //   createChartCount('/data/allTheData', 'classesByPlayer', 'Classes per Player (excl multi-class)','player', ['class1']);
+    //   createChartCount('/data/allTheData', 'classesByPlayerMulti', 'Classes per Player (incl multi-class)', 'player', ['class1','class2']);
+    //   createChartCount('/data/allTheData', 'levelsLived', 'Levels Lived (Player)','levelslived', ['player']);
+    //   createChartCount('/data/allTheData', 'levelsLivedPath', 'Levels Lived (Path)','levelslived', ['path']);
+    //   createChartScore('/data/allTheData', 'characterTotalScore', 'Character Score');
+    //   createChartAverageScore('/data/allTheData', 'characterScore','Character Survivability (levelslived/survival/crlvldiff/extralives)','name', 'lifescore');
+    //   createChartAverageScore('/data/allTheData', 'classScore','Class Survivability (how "easy" the class is, levelslived/survival/crlvldiff/extralives)','totalclass', 'classaverage');
+    //   createChartAverageScore('/data/allTheData', 'pathScore', 'Path Survivability (how "easy" the path was, levelslived/survival/crlvldiff/extralives)', 'path', 'pathaverage');
+    //   createChartAverageScore('/data/allTheData', 'playerScore', 'Player Survivability (levelslived/survival/crlvldiff/extralives)', 'player', 'playeraverage');
+    //   createWordCloud('/data/allTheData', 'killerCloud', aggregateKillerData);
+    //   createWordCloud('/data/allTheData', 'classCloud', aggregateClassData);
+    //   createWordCloud('/data/allTheData', 'specializationCloud', aggregateSpecializationData);
+    //   createWordCloud('/data/allTheData', 'raceCloud', aggregateRaceData);
 
-      createChartScore('/data/allTheData', 'characterTotalScore', 'Character Score');
-
-      createChartAverageScore(
-        '/data/allTheData', 'characterScore',
-        'Character Survivability (levelslived/survival/crlvldiff/extralives)',
-        'name', 'lifescore'
-      );
-      createChartAverageScore(
-        '/data/allTheData', 'classScore',
-        'Class Survivability (how "easy" the class is, levelslived/survival/crlvldiff/extralives)',
-        'totalclass', 'classaverage'
-      );
-      createChartAverageScore(
-        '/data/allTheData', 'pathScore',
-        'Path Survivability (how "easy" the path was, levelslived/survival/crlvldiff/extralives)',
-        'path', 'pathaverage'
-      );
-      createChartAverageScore(
-        '/data/allTheData', 'playerScore',
-        'Player Survivability (levelslived/survival/crlvldiff/extralives)',
-        'player', 'playeraverage'
-      );
-
-      createWheel('/data/allTheData', 'classWheelByPlayerExclude', 'Class Wheel (excl multi-class)', 'exclude');
-      createWheel('/data/allTheData', 'classWheelByPlayerInclude', 'Class Wheel (incl multi-class)', 'include');
-      createWordCloud('/data/allTheData', 'killerCloud', aggregateKillerData);
-      createWordCloud('/data/allTheData', 'classCloud', aggregateClassData);
-      createWordCloud('/data/allTheData', 'specializationCloud', aggregateSpecializationData);
-      createWordCloud('/data/allTheData', 'raceCloud', aggregateRaceData);
-    });
+    //   createWheel('/data/allTheData', 'classWheelByPlayerExclude', 'Class Wheel (excl multi-class)', 'exclude');
+    //   createWheel('/data/allTheData', 'classWheelByPlayerInclude', 'Class Wheel (incl multi-class)', 'include');
+    // });
     document.getElementById('ignoreClassesCheckbox').addEventListener('change', function() {
       createWheel('/data/allTheData', 'classWheelByPlayerExclude', 'Class Wheel (excl multi-class)', 'exclude');
       createWheel('/data/allTheData', 'classWheelByPlayerInclude', 'Class Wheel (incl multi-class)', 'include');

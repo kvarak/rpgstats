@@ -730,10 +730,10 @@ func getGoogleSheetData() PageVariables {
 
 			MyPageVariables.Content += "<p class=\"story\"><i>IRL: Started at "
 			MyPageVariables.Content += template.HTML(row.Irlstart) + "; "
-			MyPageVariables.Content += template.HTML(row.Irltime) + " days ago.<br/>"
+			MyPageVariables.Content += template.HTML(row.Irltime) + " days ago. "
 			MyPageVariables.Content += template.HTML(addDaysToDate(row.Irlstart, row.Comboavgirldays)) + " is the statistical last day. "
 			MyPageVariables.Content += " Killed by " + template.HTML(mostCommonItemAll(row.Comboavgkill)) + ", "
-			MyPageVariables.Content += " at level " + template.HTML(row.Comboavglvl) + ".<br/>"
+			MyPageVariables.Content += " at level " + template.HTML(row.Comboavglvl) + ". "
 			MyPageVariables.Content += " This is based on the average of all adventurers with the same class or player. "
 			MyPageVariables.Content += "</i></p>"
 

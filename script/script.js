@@ -201,6 +201,44 @@ document.addEventListener('DOMContentLoaded', function () {
       const targetId = e.target.getAttribute('data-target');
       const chartToShow = document.getElementById(targetId);
       if (chartToShow) {
+        console.log('Showing chart:', targetId);
+        // run the function corresponding to the clicked chart
+        if (targetId === 'charactercount') {
+          createChartSum('/data/allTheData', 'charactercount', 'Deaths per Path (and Player)','path', ['player'], 'deaths');
+        } else if (targetId === 'deathsByPath') {
+          createChartSum('/data/allTheData', 'deathsByPath', 'Deaths per Player (and Path)','player', ['path'], 'deaths');
+        } else if (targetId === 'classesByPlayer') {
+          createChartCount('/data/allTheData', 'classesByPlayer', 'Classes per Player (excl multi-class)','player', ['class1']);
+        } else if (targetId === 'classesByPlayerMulti') {
+          createChartCount('/data/allTheData', 'classesByPlayerMulti', 'Classes per Player (incl multi-class)', 'player', ['class1','class2']);
+        } else if (targetId === 'levelsLived') {
+          createChartCount('/data/allTheData', 'levelsLived', 'Levels Lived (Player)','levelslived', ['player']);
+        } else if (targetId === 'levelsLivedPath') {
+          createChartCount('/data/allTheData', 'levelsLivedPath', 'Levels Lived (Path)','levelslived', ['path']);
+        } else if (targetId === 'characterTotalScore') {
+          createChartScore('/data/allTheData', 'characterTotalScore', 'Character Score');
+        } else if (targetId === 'characterScore') {
+          createChartAverageScore('/data/allTheData', 'characterScore','Character Survivability (levelslived/survival/crlvldiff/extralives)','name', 'lifescore');
+        } else if (targetId === 'classScore') {
+          createChartAverageScore('/data/allTheData', 'classScore','Class Survivability (how "easy" the class is, levelslived/survival/crlvldiff/extralives)','totalclass', 'classaverage');
+        } else if (targetId === 'pathScore') {
+          createChartAverageScore('/data/allTheData', 'pathScore', 'Path Survivability (how "easy" the path was, levelslived/survival/crlvldiff/extralives)', 'path', 'pathaverage');
+        } else if (targetId === 'playerScore') {
+          createChartAverageScore('/data/allTheData', 'playerScore', 'Player Survivability (levelslived/survival/crlvldiff/extralives)', 'player', 'playeraverage');
+        } else if (targetId === 'killerCloud') {
+          createWordCloud('/data/allTheData', 'killerCloud', aggregateKillerData);
+        } else if (targetId === 'classCloud') {
+          createWordCloud('/data/allTheData', 'classCloud', aggregateClassData);
+        } else if (targetId === 'specializationCloud') {
+          createWordCloud('/data/allTheData', 'specializationCloud', aggregateSpecializationData);
+        } else if (targetId === 'raceCloud') {
+          createWordCloud('/data/allTheData', 'raceCloud', aggregateRaceData);
+        } else if (targetId === 'classWheelByPlayerExclude') {
+          createWheel('/data/allTheData', 'classWheelByPlayerExclude', 'Class Wheel (excl multi-class)', 'exclude');
+        } else if (targetId === 'classWheelByPlayerInclude') {
+          createWheel('/data/allTheData', 'classWheelByPlayerInclude', 'Class Wheel (incl multi-class)', 'include');
+        }
+
         chartToShow.style.display = 'block';
       }
     }
@@ -250,8 +288,12 @@ function createChartSum(dataUrl, canvasId, chartTitle, labelKey, valueKeys, sumK
         };
       });
 
+      if (chartInstances[canvasId]) {
+        chartInstances[canvasId].destroy();
+      }
+
       // Create the chart
-      new Chart(ctx, {
+      chartInstances[canvasId] = new Chart(ctx, {
         type: 'bar',
         data: {
           labels: labelsSorted,
@@ -584,7 +626,7 @@ function createWheel(dataUrl, canvasIdPrefix, chartTitlePrefix, classcolumns) {
 }
 
 
-// Killer word cloud
+// word clouds
 
 function aggregateKillerData(data) {
   const counts = {};
