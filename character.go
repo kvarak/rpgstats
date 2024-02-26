@@ -120,7 +120,84 @@ func makeUpTheStory(cha Character) string {
 	character = strings.ReplaceAll(character, ">>", "\" onclick=\"showImage(this.src)\">")
 	death = strings.ReplaceAll(death, "<<", "<img id=\"imageright\" src=\"\"")
 	death = strings.ReplaceAll(death, ">>", "\" onclick=\"showImage(this.src)\">")
-	header := "<h2>" + cha.Text + "</h2>"
+	header := "<h2>" + cha.Shortname + "</h2>"
+
+	classbox := ""
+	classbox += "<div class=\"classbox frame\">"
+	classbox += "<table class=\"classbox\">"
+	classbox += "<thead><tr><th>" + cha.Text + "</th></tr></thead>"
+	classbox += "<tbody>"
+	classbox += "<tr><td><i>" + cha.Race + "</i></td></tr>"
+	classbox += "<tr><td><hr></td></tr>"
+
+	// Add Path if not empty
+	if cha.Path != "" {
+		classbox += "<tr><td markdown=\"1\" class=\"classbox\">"
+		classbox += "<strong>Path</strong> " + cha.Path + ""
+		classbox += "</td></tr>"
+		classbox += "<tr><td><hr></td></tr>"
+	}
+
+	classbox += "<tr><td><i>" + cha.Irlstart + " - " + cha.Irlend + " (" + cha.Irltime + " days)</i></td></tr>"
+	if cha.Igend != "" {
+		classbox += "<tr><td><i>" + cha.Igstart + " - " + cha.Igend + " (" + cha.Igtime + " days)</i></td></tr>"
+	}
+	classbox += "<tr><td><hr></td></tr>"
+	classbox += "<tr><td><i>Start level: " + cha.Startlevel + "</i></td></tr>"
+	classbox += "<tr><td markdown=\"1\" class=\"classbox\">"
+	classbox += "<strong>" + cha.Class1
+	if cha.Spec1 != "" && cha.Spec1 != "<low lvl>" {
+		classbox += " (" + cha.Spec1 + ")"
+	}
+	if cha.Maxlvl2 != "" {
+		maxlvl, _ := strconv.Atoi(cha.Maxlvl)
+		maxlvl2, _ := strconv.Atoi(cha.Maxlvl2)
+		newmaxlvl := strconv.Itoa(maxlvl - maxlvl2)
+		classbox += "</strong> " + newmaxlvl
+	} else {
+		classbox += "</strong> " + cha.Maxlvl
+	}
+	// Add class2 if not empty
+	if cha.Class2 != "" {
+		if cha.Spec2 != "" && cha.Spec2 != "<low lvl>" {
+			classbox += "<br/><strong>" + cha.Class2 + " (" + cha.Spec2 + ")</strong> " + cha.Maxlvl2
+		} else {
+			classbox += "<br/><strong>" + cha.Class2 + "</strong> " + cha.Maxlvl2
+		}
+	}
+	classbox += "</td></tr>"
+	classbox += "<tr><td><hr></td></tr>"
+
+	// Add Resurrection if not empty
+	if cha.Extralife != "" {
+		classbox += "<tr><td markdown=\"1\" class=\"classbox\">"
+		classbox += "<strong>Resurrections:</strong> " + cha.Extralife + "<br/>"
+		classbox += "Killed by: " + cha.Resskiller + "<br/>"
+		classbox += "In adventure(s): " + cha.Ressadv
+		classbox += "</td></tr>"
+		classbox += "<tr><td><hr></td></tr>"
+	}
+
+	// Add Killer if not empty
+	if cha.Died == "y" {
+		classbox += "<tr><td markdown=\"1\" class=\"classbox\">"
+		if cha.Killer_old != "" {
+			classbox += "<strong>Final death by:</strong><br/>" + cha.Killer + "/" + cha.Killer_old + " (CR: " + cha.Killercr + ")<br/>"
+		} else {
+			classbox += "<strong>Final death by:</strong><br/>" + cha.Killer + " (CR: " + cha.Killercr + ")<br/>"
+		}
+		classbox += "</td></tr>"
+		classbox += "<tr><td><hr></td></tr>"
+	}
+
+	// Add Scores
+	classbox += "<tr><td markdown=\"1\" class=\"classbox\">"
+	classbox += "<strong>Scores:</strong><br/>"
+	classbox += "<strong>Character total score:</strong> " + cha.Characterscore + "<br/>"
+	classbox += "<i>Life: " + cha.Lifescore + " / Class: " + cha.Classscore + " / Path: " + cha.Pathscore + "</i><br/>"
+	classbox += "</td></tr>"
+
+	classbox += "</tbody></table></div>"
 
 	ending := ""
 	switch cha.Died {
@@ -134,7 +211,7 @@ func makeUpTheStory(cha Character) string {
 		ending = "Fate: Alive"
 	}
 
-	return header + "<p>" + character + "</p><h5>" + ending + "</h5><p>" + death + "</p>"
+	return classbox + " " + header + "<p>" + character + "</p><h5>" + ending + "</h5><p>" + death + "</p>"
 }
 
 func normalizeLifescores(characters []Character) ([]Character, error) {
@@ -266,7 +343,6 @@ func getSheetData() CharacterCollection {
 			LevelsLived: levelsLived,
 			Deaths:      totalDeaths,
 		}
-		character.Info = makeUpTheStory(character)
 		character.Lifescore = calculateScore(character)
 		characters = append(characters, character)
 	}
@@ -384,6 +460,10 @@ func getSheetData() CharacterCollection {
 			characters[i].Comboavgirldays = strconv.FormatFloat(comboTotalIrlDays/comboCounts, 'f', 2, 64)
 			characters[i].Comboavgkill = comboTotalKill
 		}
+
+		// For each character, make up the story
+		characters[i].Info = makeUpTheStory(characters[i])
+
 	}
 
 	return CharacterCollection{

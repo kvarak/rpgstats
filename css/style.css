@@ -189,6 +189,48 @@ table {
 
 /* ----------------------------------------------------------------------------- */
 
+
+
+/* classbox table stat color fix  */
+.classbox table tbody tr td {
+  background-color: rgba(255, 0, 0, 0);
+}
+
+.classbox.frame {
+  border-style: solid;
+  border-width: 7px 6px;
+  background-color: #f2e5b5;
+  background-image: url(/images/parchmentBackgroundGrayscale.jpg);
+  border-image: url(/images/monsterBorderFancy.png) 14 round;
+  border-image-outset: 0px 2px;
+  background-blend-mode: overlay;
+  filter: drop-shadow(1px 4px 6px #888);
+  padding: 4px 2px;
+  margin-left: 30px;
+  margin-right: 10px;
+  max-width: 300px;
+  float: right;
+}
+
+.classbox {
+  font-family: ScalySansRemake;
+  font-size: .318cm;
+  line-height: 1.2em;
+  position: relative;
+  padding: 0px;
+  margin-bottom: 0.325cm;
+  margin-left: 0px;
+}
+
+.classbox hr {
+  visibility: visible;
+  height: 6px;
+  margin: 0.12cm 0;
+  background-image: url(/images/redTriangle.png);
+  background-size: 100% 100%;
+  border: none;
+}
+
 /* @media (max-width: 768px) {
   .container {
     flex-direction: column;
