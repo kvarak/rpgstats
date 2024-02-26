@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function () {
           start: adventure.igstart,
           end: adventure.igend,
           className: getColor(adventure.pathnr),
-          customInfo: `${adventure.shortIntro}<hr>${adventure.adventureBackground}<hr>${adventure.otherBackground}`
+          customInfo: `${adventure.info}`
         };
       })
     );
@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function () {
           start: adventure.irlstart,
           end: adventure.irlend,
           className: getColor(adventure.pathnr),
-          customInfo: `${adventure.shortIntro}<hr>${adventure.adventureBackground}<hr>${adventure.otherBackground}`
+          customInfo: `${adventure.info}`
         };
       })
     );
