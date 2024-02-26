@@ -54,47 +54,51 @@
 
   <div class="container">
     <div class="list-container">
-      <ul id="plotList">
-        <li data-target="currentAdventurers">Current Adventurers</li>
-        <h4>Paths</h4>
-        <li data-target="pathIgtime">Adventures and In-game time</li>
-        <li data-target="pathIrltime">Adventures and IRL time</li>
-        <h4>Deaths</h4>
-        <li data-target="charactercount">Deaths per Path (and Player)</li>
-        <li data-target="deathsByPath">Deaths per Player (and Path)</li>
-        <li data-target="killerCloud">Killer Cloud</li>
-        <h4>Classes</h4>
-        <li data-target="classWheelByPlayerExclude">Class Wheel (excl multi-class)</li>
-        <li data-target="classWheelByPlayerInclude">Class Wheel (incl multi-class)</li>
-        <li data-target="classesByPlayer">Classes per Player (excl multi-class)</li>
-        <li data-target="classesByPlayerMulti">Classes per Player (incl multi-class)</li>
-        <li data-target="classCloud">Class Cloud</li>
-        <li data-target="specializationCloud">Specialization Cloud</li>
-        <h4>Timelines</h4>
-        <li data-target="timelineirl">IRL timeline</li>
-        <li data-target="timelineig">In-game timeline</li>
-        <li data-target="timelineirlpaths">IRL adventure timeline</li>
-        <li data-target="timelineigpaths">In-game adventure timeline</li>
-        <h4>Score</h4>
-        <li data-target="pathScore">Path Survivability</li>
-        <li data-target="classScore">Class Survivability</li>
-        <li data-target="playerScore">Player Survivability</li>
-        <li data-target="characterScore">Character Survivability</li>
-        <li data-target="characterTotalScore">Character Total Score</li>
-        <h4>Other</h4>
-        <li data-target="raceCloud">Race Cloud</li>
-        <li data-target="levelsLived">Levels Lived (Player)</li>
-        <li data-target="levelsLivedPath">Levels Lived (Path)</li>
-      </ul>
-      <h4>Settings</h4>
-      <input type="checkbox" id="ignoreClassesCheckbox" name="ignoreClasses" value="ignore">
-        <label class="settingslabel" for="ignoreClassesCheckbox">Ignore obsolete classes in wheels</label><br/>
-      <input type="checkbox" id="includeAllClassesCheckbox" name="includeAllClasses" value="include">
-        <label class="settingslabel" for="includeAllClassesCheckbox">Include all classes in wheels</label>
-      <h4>Make your own plot</h4>
-      <select id="labelKeyDropdown"></select>
-      <select id="valueKeyDropdown"></select><br/>
-      <button id="generateChartButton">Generate Characters Plot</button><br/>
+      <div id="navigation-container">
+        <ul id="plotList">
+          <li data-target="currentAdventurers">Current Adventurers</li>
+          <h4>Paths</h4>
+          <li data-target="pathIgtime">Adventures and In-game time</li>
+          <li data-target="pathIrltime">Adventures and IRL time</li>
+          <h4>Deaths</h4>
+          <li data-target="charactercount">Deaths per Path (and Player)</li>
+          <li data-target="deathsByPath">Deaths per Player (and Path)</li>
+          <li data-target="killerCloud">Killer Cloud</li>
+          <h4>Classes</h4>
+          <li data-target="classWheelByPlayerExclude">Class Wheel (excl multi-class)</li>
+          <li data-target="classWheelByPlayerInclude">Class Wheel (incl multi-class)</li>
+          <li data-target="classesByPlayer">Classes per Player (excl multi-class)</li>
+          <li data-target="classesByPlayerMulti">Classes per Player (incl multi-class)</li>
+          <li data-target="classCloud">Class Cloud</li>
+          <li data-target="specializationCloud">Specialization Cloud</li>
+          <h4>Timelines</h4>
+          <li data-target="timelineirl">IRL timeline</li>
+          <li data-target="timelineig">In-game timeline</li>
+          <li data-target="timelineirlpaths">IRL adventure timeline</li>
+          <li data-target="timelineigpaths">In-game adventure timeline</li>
+          <h4>Score</h4>
+          <li data-target="pathScore">Path Survivability</li>
+          <li data-target="classScore">Class Survivability</li>
+          <li data-target="playerScore">Player Survivability</li>
+          <li data-target="characterScore">Character Survivability</li>
+          <li data-target="characterTotalScore">Character Total Score</li>
+          <h4>Other</h4>
+          <li data-target="raceCloud">Race Cloud</li>
+          <li data-target="levelsLived">Levels Lived (Player)</li>
+          <li data-target="levelsLivedPath">Levels Lived (Path)</li>
+        </ul>
+      </div>
+      <div class="settingsContainer">
+        <h4>Settings</h4>
+        <input type="checkbox" id="ignoreClassesCheckbox" name="ignoreClasses" value="ignore">
+          <label class="settingslabel" for="ignoreClassesCheckbox">Ignore obsolete classes in wheels</label><br/>
+        <input type="checkbox" id="includeAllClassesCheckbox" name="includeAllClasses" value="include">
+          <label class="settingslabel" for="includeAllClassesCheckbox">Include all classes in wheels</label>
+        <h4>Make your own plot</h4>
+        <select id="labelKeyDropdown"></select>
+        <select id="valueKeyDropdown"></select><br/>
+        <button id="generateChartButton">Generate Characters Plot</button><br/>
+      </div>
 
 
     </div>
@@ -139,38 +143,19 @@
       <div id="timelineirlpaths" class="chart" style="display: none;"></div>
       <div id="timelineigpaths" class="chart" style="display: none;"></div>
       <canvas id="myChart" width="700" height="600" class="chart" style="display: none;"></canvas>
-      <canvas id="characterScore" width="700" height="1800" class="chart" style="display: none;"></canvas>
+
+      <canvas id="characterScore" width="700" height="2200" class="chart" style="display: none;"></canvas>
       <canvas id="characterTotalScore" width="700" height="2200" class="chart" style="display: none;"></canvas>
-      <canvas id="classScore" width="700" height="600" class="chart" style="display: none;"></canvas>
+      <canvas id="classScore" width="700" height="1000" class="chart" style="display: none;"></canvas>
       <canvas id="playerScore" width="700" height="600" class="chart" style="display: none;"></canvas>
       <canvas id="pathScore" width="700" height="600" class="chart" style="display: none;"></canvas>
       <p>
-        <div id="infoBox"></div>
+        <div id="infoBox" class="parchment" style="display: block;"></div>
       </p>
     </div>
   </div>
 
   <script>
-    // document.addEventListener('DOMContentLoaded', function () {
-    //   createChartSum('/data/allTheData', 'charactercount', 'Deaths per Path (and Player)','path', ['player'], 'deaths');
-    //   createChartSum('/data/allTheData', 'deathsByPath', 'Deaths per Player (and Path)','player', ['path'], 'deaths');
-    //   createChartCount('/data/allTheData', 'classesByPlayer', 'Classes per Player (excl multi-class)','player', ['class1']);
-    //   createChartCount('/data/allTheData', 'classesByPlayerMulti', 'Classes per Player (incl multi-class)', 'player', ['class1','class2']);
-    //   createChartCount('/data/allTheData', 'levelsLived', 'Levels Lived (Player)','levelslived', ['player']);
-    //   createChartCount('/data/allTheData', 'levelsLivedPath', 'Levels Lived (Path)','levelslived', ['path']);
-    //   createChartScore('/data/allTheData', 'characterTotalScore', 'Character Score');
-    //   createChartAverageScore('/data/allTheData', 'characterScore','Character Survivability (levelslived/survival/crlvldiff/extralives)','name', 'lifescore');
-    //   createChartAverageScore('/data/allTheData', 'classScore','Class Survivability (how "easy" the class is, levelslived/survival/crlvldiff/extralives)','totalclass', 'classaverage');
-    //   createChartAverageScore('/data/allTheData', 'pathScore', 'Path Survivability (how "easy" the path was, levelslived/survival/crlvldiff/extralives)', 'path', 'pathaverage');
-    //   createChartAverageScore('/data/allTheData', 'playerScore', 'Player Survivability (levelslived/survival/crlvldiff/extralives)', 'player', 'playeraverage');
-    //   createWordCloud('/data/allTheData', 'killerCloud', aggregateKillerData);
-    //   createWordCloud('/data/allTheData', 'classCloud', aggregateClassData);
-    //   createWordCloud('/data/allTheData', 'specializationCloud', aggregateSpecializationData);
-    //   createWordCloud('/data/allTheData', 'raceCloud', aggregateRaceData);
-
-    //   createWheel('/data/allTheData', 'classWheelByPlayerExclude', 'Class Wheel (excl multi-class)', 'exclude');
-    //   createWheel('/data/allTheData', 'classWheelByPlayerInclude', 'Class Wheel (incl multi-class)', 'include');
-    // });
     document.getElementById('ignoreClassesCheckbox').addEventListener('change', function() {
       createWheel('/data/allTheData', 'classWheelByPlayerExclude', 'Class Wheel (excl multi-class)', 'exclude');
       createWheel('/data/allTheData', 'classWheelByPlayerInclude', 'Class Wheel (incl multi-class)', 'include');

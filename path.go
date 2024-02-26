@@ -44,7 +44,7 @@ func pathInfo(adv Adventure) string {
 	intro := ""
 	if adv.ShortIntro != "" {
 		intro = adv.ShortIntro
-		intro = strings.ReplaceAll(intro, "<<", "<img id=\"imageleft\" src=\"")
+		intro = strings.ReplaceAll(intro, "<<", "<img class=\"imageleft\" src=\"")
 		intro = strings.ReplaceAll(intro, ">>", "\" onclick=\"showImage(this.src)\">")
 		intro = "<a name=\"intro\"><h4>Short Introduction</h4></a>" + intro
 		intro += "<hr>"
@@ -52,7 +52,7 @@ func pathInfo(adv Adventure) string {
 	background := ""
 	if adv.AdventureBackground != "" {
 		background = adv.AdventureBackground
-		background = strings.ReplaceAll(background, "<<", "<img id=\"imageright\" src=\"")
+		background = strings.ReplaceAll(background, "<<", "<img class=\"imageright\" src=\"")
 		background = strings.ReplaceAll(background, ">>", "\" onclick=\"showImage(this.src)\">")
 		background = "<a name=\"background\"><h4>Adventure Background</h4></a>" + background
 		background += "<hr>"
@@ -60,7 +60,7 @@ func pathInfo(adv Adventure) string {
 	other := ""
 	if adv.OtherBackground != "" {
 		other = adv.OtherBackground
-		other = strings.ReplaceAll(other, "<<", "<img id=\"imageleft\" src=\"")
+		other = strings.ReplaceAll(other, "<<", "<img class=\"imageleft\" src=\"")
 		other = strings.ReplaceAll(other, ">>", "\" onclick=\"showImage(this.src)\">")
 		other = "<a name=\"other\"><h4>Other Background</h4></a>" + other
 		other += "<hr>"
@@ -68,7 +68,7 @@ func pathInfo(adv Adventure) string {
 	boss := ""
 	if adv.FinalBoss != "" {
 		boss = adv.FinalBoss
-		boss = strings.ReplaceAll(boss, "<<", "<img id=\"imageright\" src=\"")
+		boss = strings.ReplaceAll(boss, "<<", "<img class=\"imageright\" src=\"")
 		boss = strings.ReplaceAll(boss, ">>", "\" onclick=\"showImage(this.src)\">")
 		boss = "<a name=\"boss\"><h4>Final Boss</h4></a>" + boss
 	}

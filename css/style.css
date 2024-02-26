@@ -222,6 +222,15 @@ table {
   margin-left: 0px;
 }
 
+@media screen and (max-width: 600px) {
+  .classbox.frame {
+    margin-left: 0px;
+    float: none;
+  }
+  .classbox {
+    margin-left: 0px;
+  }
+}
 .classbox hr {
   visibility: visible;
   height: 6px;
@@ -239,18 +248,34 @@ table {
 
 .container {
   display: flex;
+  flex-wrap: wrap; /* This will allow items to wrap onto the next line if there's not enough space */
   font-family: 'ScalySansSmallCapsRemake', sans-serif; /* Fallback font if needed */
 }
 
+@media screen and (max-width: 600px) { /* Adjust 600px to the breakpoint you wish for mobile devices */
+  .container {
+    flex-direction: column; /* Stack flex children vertically on small screens */
+  }
+}
+
 .list-container {
-  flex-direction: column;
-  margin-right: 20px; /* Adjust spacing as necessary */
-  flex-shrink: 0; /* Prevent container from shrinking */
+  flex: 1;
+  /* flex-direction: column;
+  margin-right: 20px;
+  flex-shrink: 0; */
+  min-width: 200px;
 }
 
 .list-container ul {
   list-style-type: none; /* Remove the dots in front of list items */
   padding-left: 0; /* Remove the space in front of the list */
+}
+
+
+.chart-container {
+  flex: 2;
+  /* flex-grow: 1; */
+  min-width: 200px;
 }
 
 .checkbox-container {
@@ -260,8 +285,13 @@ table {
   justify-content: center; /* Add this line to center the items vertically */
 }
 
-.chart-container {
-  flex-grow: 1; /* Take up remaining space */
+.settingsContainer {
+  display: block;
+}
+@media screen and (max-width: 600px) { /* Adjust 600px to the breakpoint you wish for mobile devices */
+  .settingsContainer {
+    display: none; /* Hide settings initially */
+  }
 }
 
 .canvas {
@@ -345,31 +375,41 @@ table tr:nth-child(odd) td {background-color: #b5e2f1;}
 /* infoBox */
 
 #infoBox {
+  font-family: "Tangerine", cursive;
+  font-size: 27px;
+  line-height: 1.5;
+  text-align: justify;
+  max-width: 100%; /* Add max-width property */
+}
+
+.parchment {
   background-image: url("/images/parchment.jpg");
   background-repeat: repeat;
   background-size: cover;
   border: 2px solid #d4b783;
   padding: 20px;
-  font-family: "Tangerine", cursive;
-  font-size: 27px;
-  line-height: 1.5;
-  text-align: justify;
   margin-bottom: 20px;
-  max-width: 100%; /* Add max-width property */
 }
 
-#imageleft {
+.imageleft {
   position: relative;
   float: left;
-  width: 100px;
+  width: 200px;
   cursor: pointer;
   padding: 0 5px; /* Add padding 5px left and right */
 }
 
-#imageright {
+.imageright {
   position: relative;
   float: right;
-  width: 100px;
+  width: 200px;
   cursor: pointer;
   padding: 0 5px; /* Add padding 5px left and right */
+}
+
+@media screen and (max-width: 600px) {
+  .imageleft, .imageright {
+    float: none; /* Remove float */
+    width: 100%; /* Set width to 100% */
+  }
 }

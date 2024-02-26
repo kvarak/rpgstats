@@ -116,9 +116,9 @@ func calculateScore(character Character) string {
 func makeUpTheStory(cha Character) string {
 	character := cha.Description
 	death := cha.Event
-	character = strings.ReplaceAll(character, "<<", "<img id=\"imageleft\" src=\"")
+	character = strings.ReplaceAll(character, "<<", "<img class=\"imageleft\" src=\"")
 	character = strings.ReplaceAll(character, ">>", "\" onclick=\"showImage(this.src)\">")
-	death = strings.ReplaceAll(death, "<<", "<img id=\"imageright\" src=\"\"")
+	death = strings.ReplaceAll(death, "<<", "<img class=\"imageright\" src=\"\"")
 	death = strings.ReplaceAll(death, ">>", "\" onclick=\"showImage(this.src)\">")
 	header := "<h2>" + cha.Shortname + "</h2>"
 
@@ -820,7 +820,7 @@ func getGoogleSheetData() PageVariables {
 			story := row.Description
 			if story != "" {
 				MyPageVariables.Content += "<h5>Background</h5>"
-				story = strings.ReplaceAll(story, "<<", "<img id=\"imageleft\" src=\"")
+				story = strings.ReplaceAll(story, "<<", "<img class=\"imageleft\" src=\"")
 				story = strings.ReplaceAll(story, ">>", "\" onclick=\"showImage(this.src)\">")
 				MyPageVariables.Content += "<p class=\"story\">" + template.HTML(story) + "</p>"
 			}

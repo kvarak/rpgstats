@@ -314,6 +314,9 @@ document.addEventListener('DOMContentLoaded', function () {
           createChartSum('/data/allThePaths', 'pathIrltime', 'Adventures and IRL time','path', ['advnr'], 'irltime', 'adventures');
         }
         chartToShow.style.display = 'block';
+        if (chartToShow) {
+          chartToShow.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       }
     }
   });
@@ -779,7 +782,11 @@ function createWordCloud(dataUrl, cloudId, aggregateFunction) {
         .fontSize(d => d.size)
         .on("end", draw);
 
-      layout.start();
+      if (chartInstances[cloudId]) {
+        chartInstances[cloudId].destroy();
+      }
+
+      chartInstances[cloudId] = layout.start();
 
       function draw(words) {
         d3.select(`#${cloudId}`).append("svg")
