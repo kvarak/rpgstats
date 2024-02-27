@@ -317,6 +317,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (chartToShow) {
           chartToShow.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
+        document.getElementById('infoBox').innerHTML = "";
       }
     }
   });
