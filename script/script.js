@@ -710,12 +710,22 @@ function aggregateKillerData(data) {
   const counts = {};
 
   data.characters.forEach(character => {
-      const { killer, killer_old } = character;
+      var { killer, killer_old , resskiller } = character;
+      // remove starting and trailing whitespace from killer, and killer_old
+      killer = killer ? killer.trim() : null;
+      killer_old = killer_old ? killer_old.trim() : null;
       if (killer) {
-          counts[killer] = (counts[killer] || 0) + 1;
+        counts[killer] = (counts[killer] || 0) + 1;
       }
       if (killer_old) {
-          counts[killer_old] = (counts[killer_old] || 0) + 1;
+        counts[killer_old] = (counts[killer_old] || 0) + 1;
+      }
+      if (resskiller) {
+        // resskiller is a string with multiple killers separated by commas
+        resskiller.split(',').forEach(rkiller => {
+          rkiller = rkiller ? rkiller.trim() : null;
+          counts[rkiller] = (counts[rkiller] || 0) + 1;
+        });
       }
   });
 

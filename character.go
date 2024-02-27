@@ -113,15 +113,7 @@ func calculateScore(character Character) string {
 	return strconv.Itoa(int(score))
 }
 
-func makeUpTheStory(cha Character) string {
-	character := cha.Description
-	death := cha.Event
-	character = strings.ReplaceAll(character, "<<", "<img class=\"imageleft\" src=\"")
-	character = strings.ReplaceAll(character, ">>", "\" onclick=\"showImage(this.src)\">")
-	death = strings.ReplaceAll(death, "<<", "<img class=\"imageright\" src=\"\"")
-	death = strings.ReplaceAll(death, ">>", "\" onclick=\"showImage(this.src)\">")
-	header := "<h2>" + cha.Shortname + "</h2>"
-
+func createClassbox(cha Character) string {
 	classbox := ""
 	classbox += "<div class=\"classbox frame\">"
 	classbox += "<table class=\"classbox\">"
@@ -199,6 +191,18 @@ func makeUpTheStory(cha Character) string {
 
 	classbox += "</tbody></table></div>"
 
+	return classbox
+}
+
+func makeUpTheStory(cha Character) string {
+	character := cha.Description
+	death := cha.Event
+	character = strings.ReplaceAll(character, "<<", "<img class=\"imageleft\" src=\"")
+	character = strings.ReplaceAll(character, ">>", "\" onclick=\"showImage(this.src)\">")
+	death = strings.ReplaceAll(death, "<<", "<img class=\"imageright\" src=\"\"")
+	death = strings.ReplaceAll(death, ">>", "\" onclick=\"showImage(this.src)\">")
+	header := "<h2>" + cha.Shortname + "</h2>"
+
 	ending := ""
 	switch cha.Died {
 	case "y":
@@ -210,6 +214,8 @@ func makeUpTheStory(cha Character) string {
 	default:
 		ending = "Fate: Alive"
 	}
+
+	classbox := createClassbox(cha)
 
 	return classbox + " " + header + "<p>" + character + "</p><h5>" + ending + "</h5><p>" + death + "</p>"
 }
@@ -436,6 +442,7 @@ func getSheetData() CharacterCollection {
 					irltime, _ := strconv.Atoi(character.Irltime)
 					killer := character.Killer
 					killer_old := character.Killer_old
+					resskiller := character.Resskiller
 					comboTotalLevels += float64(levelsLived)
 					comboTotalDays += float64(igtime)
 					comboTotalIrlDays += float64(irltime)
@@ -451,6 +458,13 @@ func getSheetData() CharacterCollection {
 							comboTotalKill += killer_old
 						} else {
 							comboTotalKill += ", " + killer_old
+						}
+					}
+					if character.Extralife != "" {
+						if comboTotalKill == "" {
+							comboTotalKill += resskiller
+						} else {
+							comboTotalKill += ", " + resskiller
 						}
 					}
 				}
@@ -674,7 +688,7 @@ func mostCommonItemAll(input string) string {
 		return "" // Return empty if input is empty or only contains "End boss"
 	}
 
-	// Replace "End boss" with an empty string and trim spaces around commas
+	// Remove "End boss"
 	input = strings.Replace(input, "End boss", "", -1)
 	input = strings.Replace(input, ", ,", ", ", -1)
 
