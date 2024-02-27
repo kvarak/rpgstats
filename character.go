@@ -70,6 +70,8 @@ type Character struct {
 	Playerscore     string `json:"playerscore"`
 	Playeraverage   string `json:"playeraverage"`
 	Characterscore  string `json:"characterscore"`
+	Racescore       string `json:"racescore"`
+	Raceaverage     string `json:"raceaverage"`
 	Comboavglvl     string `json:"comboavglvl"`
 	Comboavgdays    string `json:"comboavgdays"`
 	Comboavgirldays string `json:"comboavgirldays"`
@@ -407,6 +409,23 @@ func getSheetData() CharacterCollection {
 		characters[i].Playeraverage = strconv.Itoa(average)
 		lifescore, _ := strconv.Atoi(characters[i].Lifescore)
 		characters[i].Playerscore = strconv.Itoa((lifescore - average + 100) / 2)
+	}
+
+	// Calculate the average character.Lifescore for each character.Category
+	// And save it into character.Raceaverage
+	scores = make(map[string]float64)
+	counts = make(map[string]int)
+	for _, character := range characters {
+		lifescore, _ := strconv.ParseFloat(character.Lifescore, 64)
+		scores[character.Race] += lifescore
+		counts[character.Race]++
+	}
+	for i := range characters {
+		lookup := characters[i].Race
+		average := int(scores[lookup] / float64(counts[lookup]))
+		characters[i].Raceaverage = strconv.Itoa(average)
+		lifescore, _ := strconv.Atoi(characters[i].Lifescore)
+		characters[i].Racescore = strconv.Itoa((lifescore - average + 100) / 2)
 	}
 
 	for i := range characters {

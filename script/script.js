@@ -289,12 +289,16 @@ document.addEventListener('DOMContentLoaded', function () {
           createChartScore('/data/allTheData', 'characterTotalScore', 'Character Score');
         } else if (targetId === 'characterScore') {
           createChartAverageScore('/data/allTheData', 'characterScore','Character Survivability (levelslived/survival/crlvldiff/extralives)','name', 'lifescore');
-        } else if (targetId === 'classScore') {
-          createChartAverageScore('/data/allTheData', 'classScore','Class Survivability (how "easy" the class is, levelslived/survival/crlvldiff/extralives)','totalclass', 'classaverage');
-        } else if (targetId === 'pathScore') {
-          createChartAverageScore('/data/allTheData', 'pathScore', 'Path Survivability (how "easy" the path was, levelslived/survival/crlvldiff/extralives)', 'path', 'pathaverage');
+
         } else if (targetId === 'playerScore') {
-          createChartAverageScore('/data/allTheData', 'playerScore', 'Player Survivability (levelslived/survival/crlvldiff/extralives)', 'player', 'playeraverage');
+          createBoxPlot('/data/allTheData', targetId, 'Player Survivability (levelslived/survival/crlvldiff/extralives)', 'player', 'lifescore', 'playeraverage', 400);
+        } else if (targetId === 'classScore') {
+          createBoxPlot('/data/allTheData', targetId, 'Class Survivability (how "easy" the class is, levelslived/survival/crlvldiff/extralives)','totalclass', 'lifescore', 'classaverage', 1200);
+        } else if (targetId === 'pathScore') {
+          createBoxPlot('/data/allTheData', targetId, 'Path Survivability (how "easy" the path was, levelslived/survival/crlvldiff/extralives)', 'path', 'lifescore', 'pathaverage', 600);
+        } else if (targetId === 'raceScore') {
+          createBoxPlot('/data/allTheData', targetId, 'Race Survivability (how "easy" the race was, levelslived/survival/crlvldiff/extralives)', 'race', 'lifescore', 'raceaverage', 1200);
+
         } else if (targetId === 'killerCloud') {
           createWordCloud('/data/allTheData', 'killerCloud', aggregateKillerData);
         } else if (targetId === 'classCloud') {
@@ -303,6 +307,7 @@ document.addEventListener('DOMContentLoaded', function () {
           createWordCloud('/data/allTheData', 'specializationCloud', aggregateSpecializationData);
         } else if (targetId === 'raceCloud') {
           createWordCloud('/data/allTheData', 'raceCloud', aggregateRaceData);
+
         } else if (targetId === 'classWheelByPlayerExclude') {
           createWheel('/data/allTheData', 'classWheelByPlayerExclude', 'Class Wheel (excl multi-class)', 'exclude');
         } else if (targetId === 'classWheelByPlayerInclude') {
@@ -396,6 +401,66 @@ function createChartSum(dataUrl, canvasId, chartTitle, labelKey, valueKeys, sumK
       });
     });
 }
+
+// Uses Plotly to create a box plot
+function createBoxPlot(dataUrl, canvasId, chartTitle, groupKey, valueKey, sortKey, height = 1200) {
+  fetch(dataUrl)
+    .then(response => response.json())
+    .then(data => {
+      const characters = data.characters;
+      characters.sort((a, b) => Number(a[sortKey]) - Number(b[sortKey]));
+      // Initialize an empty object to hold our grouped data
+      let groupedData = {};
+
+      // Group data by the groupKey and collect all valueKey values
+      characters.forEach(character => {
+        const group = character[groupKey];
+        const value = parseFloat(character[valueKey]);
+
+        // Initialize the group in groupedData if it doesn't exist
+        if (!groupedData[group]) {
+          groupedData[group] = [];
+        }
+
+        // Push the value into the correct group
+        groupedData[group].push(value);
+      });
+
+      // Prepare the traces for Plotly from the grouped data
+      let traces = Object.keys(groupedData).map(group => {
+        return {
+          type: 'box',
+          name: group,
+          x: groupedData[group],
+          boxpoints: 'all',
+          jitter: 0.3,
+          pointpos: -1.8,
+          marker: {color: 'rgb(7,40,89)'},
+          boxmean: 'sd',
+          orientation: 'h',
+          boxpoints: false,
+        };
+      });
+
+      const layout = {
+        title: chartTitle,
+        yaxis: { title: '', zeroline: false, tickangle:-15 },
+        xaxis: { title: '', zeroline: false },
+        showlegend: false,
+        height: height,
+        margin: {
+          l: 200,
+          r: 50,
+          b: 50,
+          t: 50,
+          pad: 4
+        },
+      };
+
+      chartInstances[canvasId] = Plotly.newPlot(canvasId, traces, layout);
+    });
+}
+
 
 function createChartCount(dataUrl, canvasId, chartTitle, labelKey, valueKeys, dataKey = 'characters') {
   fetch(dataUrl)

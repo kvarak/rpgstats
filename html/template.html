@@ -27,6 +27,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/moment"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
   <!-- Wordcloud -->
   <script src="https://d3js.org/d3.v5.min.js"></script>
@@ -80,6 +81,7 @@
           <li data-target="pathScore">Path Survivability</li>
           <li data-target="classScore">Class Survivability</li>
           <li data-target="playerScore">Player Survivability</li>
+          <li data-target="raceScore">Race Survivability</li>
           <li data-target="characterScore">Character Survivability</li>
           <li data-target="characterTotalScore">Character Total Score</li>
           <h4>Other</h4>
@@ -144,11 +146,14 @@
       <div id="timelineigpaths" class="chart" style="display: none;"></div>
       <canvas id="myChart" width="700" height="600" class="chart" style="display: none;"></canvas>
 
+      <div id="classScore" width="700" height="1000" class="chart" style="display: none;"></div>
+      <div id="pathScore" width="700" height="300" class="chart" style="display: none;"></div>
+      <div id="playerScore" width="700" height="300" class="chart" style="display: none;"></div>
+      <div id="raceScore" width="700" height="1000" class="chart" style="display: none;"></div>
+
       <canvas id="characterScore" width="700" height="2200" class="chart" style="display: none;"></canvas>
       <canvas id="characterTotalScore" width="700" height="2200" class="chart" style="display: none;"></canvas>
-      <canvas id="classScore" width="700" height="1000" class="chart" style="display: none;"></canvas>
-      <canvas id="playerScore" width="700" height="600" class="chart" style="display: none;"></canvas>
-      <canvas id="pathScore" width="700" height="600" class="chart" style="display: none;"></canvas>
+      <!-- <canvas id="classScore" width="700" height="1000" class="chart" style="display: none;"></canvas> -->
       <p>
         <div id="infoBox" class="parchment" style="display: block;"></div>
       </p>
